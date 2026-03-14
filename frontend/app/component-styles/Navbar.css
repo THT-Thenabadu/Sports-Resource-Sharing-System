@@ -1,0 +1,78 @@
+/* ===========================
+   Navbar.css
+   =========================== */
+
+   .navbar {
+    background-color: var(--color-dark);
+    color: var(--color-white);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 1rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .navbar-logo {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--color-white);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .navbar-logo span {
+    color: var(--color-dark);
+    font-weight: 800;
+    font-size: 1.25rem;
+  }
+  
+  .navbar-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+  
+  .navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .navbar-link {
+    transition: color 0.2s ease;
+  }
+  
+  .navbar-link:hover {
+    color: var(--color-gray-400);
+  }
+  
+  .navbar-btn {
+    background-color: var(--color-white);
+    color: var(--color-dark);
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+  
+  .navbar-btn:hover {
+    background-color: var(--color-gray-100);
+  }
+  
+  @media (max-width: 768px) {
+    .navbar {
+      padding: 1rem 1.5rem;
+    }
+  }
