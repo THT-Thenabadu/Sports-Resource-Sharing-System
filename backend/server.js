@@ -3,24 +3,21 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+const authRoutes = require('./routes/auth'); // Import the routes
+
 const app = express();
 
-//middleware
+// Middleware
 app.use(cors());
 app.use(express.json());
 
+// Routes
+app.use('/api/auth', authRoutes); // All auth routes will start with /api/auth
 
-//routes
-app.get('/', (req, res) => {
-    res.json({message: 'API is running!'});
-});
+// Database
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ Sportek DB Connected"))
+  .catch(err => console.log("❌ DB Error:", err));
 
-
-//Connection to MONGODB and start server
-
-mongoose.connect(process.env.MONGO_URI)
-    .then(()=>{
-        console.log('MongoDB Connected');
-        app.listen(5000, () => console.log('Server running on port 5000'));
-    })
-    .catch(err => console.error(err));
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));

@@ -3,6 +3,7 @@ import "../component-styles/LoginForm.css";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,11 +18,46 @@ export default function LoginForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login submitted:", formData);
-    // Add your login logic here
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Save token to localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("name", data.name);
+
+        // Redirect based on role
+        if (data.role === "owner") {
+          window.location.href = "/dashboard/owner";
+        } else {
+          window.location.href = "/dashboard/customer";
+        }
+      } else {
+        console.log("Backend error:", data);
+        alert(data.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Connection error:", error);
+      alert("Could not connect to the server. Is your backend running?");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <main className="login-main">

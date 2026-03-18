@@ -19,14 +19,48 @@ export default function RegisterForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // 1. Client-side Validation
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    console.log("Register submitted:", { role, ...formData });
-    // Add your register logic here
+  
+    // 2. Prepare the data payload
+    // We match the keys to what your Backend User Schema expects (name, email, password, etc.)
+    const userData = {
+      name: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+      role: role,
+      businessName: role === "owner" ? formData.businessName : ""
+    };
+  
+    try {
+      // 3. Send the POST request to your Express server
+      const response = await fetch("http://localhost:8000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("Registration successful! You can now log in.");
+        // You could use window.location.href = "/login" here to redirect
+      } else {
+        // Show the error message from the backend (e.g., "User already exists")
+        alert(data.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error("Connection error:", error);
+      alert("Could not connect to the server. Is your backend running?");
+    }
   };
 
   return (
