@@ -1,15 +1,61 @@
 import { useState } from "react";
 import "../component-styles/RegisterForm.css";
 
+// ── Eye Icons ────────────────────────────────────────────────────────────────
+const EyeIcon = ({ open }) =>
+  open ? (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18" />
+    </svg>
+  );
+
+// ── Reusable: Password Input ─────────────────────────────────────────────────
+function PasswordInput({ name, placeholder, value, onChange, show, onToggle }) {
+  return (
+    <div className="password-wrapper">
+      <input
+        className="form-input password-input"
+        type={show ? "text" : "password"}
+        name={name}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        required
+      />
+      <button
+        type="button"
+        className="password-toggle"
+        onClick={onToggle}
+        aria-label="Toggle password visibility"
+      >
+        <EyeIcon open={show} />
+      </button>
+    </div>
+  );
+}
+
+// ── Reusable: Form Field ─────────────────────────────────────────────────────
+function FormField({ label, children }) {
+  return (
+    <div className="form-group">
+      <label className="form-label">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+// ── Main Component ───────────────────────────────────────────────────────────
 export default function RegisterForm() {
-  const [role, setRole] = useState("customer");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    businessName: "",
-    businessRegId: "",
     password: "",
     confirmPassword: "",
   });
@@ -21,40 +67,32 @@ export default function RegisterForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // 1. Client-side Validation
+
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-  
-    // 2. Prepare the data payload
-    // We match the keys to what your Backend User Schema expects (name, email, password, etc.)
+
     const userData = {
       name: formData.fullName,
       email: formData.email,
       password: formData.password,
-      role: role,
-      businessName: role === "owner" ? formData.businessName : ""
+      role: "customer",
     };
-  
+
     try {
-      // 3. Send the POST request to your Express server
       const response = await fetch("http://localhost:8000/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         alert("Registration successful! You can now log in.");
-        // You could use window.location.href = "/login" here to redirect
+        // window.location.href = "/login";
       } else {
-        // Show the error message from the backend (e.g., "User already exists")
         alert(data.message || "Registration failed");
       }
     } catch (error) {
@@ -75,30 +113,8 @@ export default function RegisterForm() {
         </div>
 
         <form className="register-form" onSubmit={handleSubmit}>
-          {/* Role Toggle */}
-          <div className="form-group">
-            <label className="form-label">Register as</label>
-            <div className="role-toggle-group">
-              <button
-                type="button"
-                className={`role-btn ${role === "customer" ? "role-btn--active" : ""}`}
-                onClick={() => setRole("customer")}
-              >
-                I am a Customer
-              </button>
-              <button
-                type="button"
-                className={`role-btn ${role === "owner" ? "role-btn--active" : ""}`}
-                onClick={() => setRole("owner")}
-              >
-                I am a Property Owner
-              </button>
-            </div>
-          </div>
-
           {/* Full Name */}
-          <div className="form-group">
-            <label className="form-label">Full Name</label>
+          <FormField label="Full Name">
             <input
               className="form-input"
               type="text"
@@ -108,11 +124,10 @@ export default function RegisterForm() {
               onChange={handleChange}
               required
             />
-          </div>
+          </FormField>
 
           {/* Email */}
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
+          <FormField label="Email Address">
             <input
               className="form-input"
               type="email"
@@ -122,91 +137,33 @@ export default function RegisterForm() {
               onChange={handleChange}
               required
             />
-          </div>
-
-          {/* Owner-Specific Fields */}
-          {role === "owner" && (
-            <div className="owner-fields">
-              <div className="form-group">
-                <label className="form-label">Business Name</label>
-                <input
-                  className="form-input"
-                  type="text"
-                  name="businessName"
-                  placeholder="Enter your business name"
-                  value={formData.businessName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Business Registration ID</label>
-                <input
-                  className="form-input"
-                  type="text"
-                  name="businessRegId"
-                  placeholder="Enter registration ID"
-                  value={formData.businessRegId}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-          )}
+          </FormField>
 
           {/* Password */}
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <div className="password-wrapper">
-              <input
-                className="form-input password-input"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label="Toggle password visibility"
-              >
-                <span className="material-symbols-outlined">
-                  {showPassword ? "visibility_off" : "visibility"}
-                </span>
-              </button>
-            </div>
-          </div>
+          <FormField label="Password">
+            <PasswordInput
+              name="password"
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              show={showPassword}
+              onToggle={() => setShowPassword((prev) => !prev)}
+            />
+          </FormField>
 
           {/* Confirm Password */}
-          <div className="form-group">
-            <label className="form-label">Confirm Password</label>
-            <div className="password-wrapper">
-              <input
-                className="form-input password-input"
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
-                aria-label="Toggle confirm password visibility"
-              >
-                <span className="material-symbols-outlined">
-                  {showConfirmPassword ? "visibility_off" : "visibility"}
-                </span>
-              </button>
-            </div>
-          </div>
+          <FormField label="Confirm Password">
+            <PasswordInput
+              name="confirmPassword"
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              show={showConfirmPassword}
+              onToggle={() => setShowConfirmPassword((prev) => !prev)}
+            />
+          </FormField>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div className="form-actions">
             <button className="submit-btn" type="submit">
               Create Account
