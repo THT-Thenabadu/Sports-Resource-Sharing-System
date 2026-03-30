@@ -21,7 +21,7 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const response = await fetch("http://localhost:8000/api/auth/login", {
         method: "POST",
@@ -31,23 +31,29 @@ export default function LoginForm() {
           password: formData.password,
         }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
-        // Save token to localStorage
+        // ✅ Save token
         localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);
-        localStorage.setItem("name", data.name);
-
+  
+        // ✅ Save user as object so Navbar can read it
+        localStorage.setItem("user", JSON.stringify({
+          name: data.name,
+          role: data.role
+        }));
+  
+        // ✅ Notify Navbar to update instantly without refresh
+        window.dispatchEvent(new Event('userUpdated'));
+  
         // Redirect based on role
         if (data.role === "owner") {
-          window.location.href = "/dashboard/owner";
+          window.location.href = "/";
         } else {
-          window.location.href = "/dashboard/customer";
+          window.location.href = "/";
         }
       } else {
-        console.log("Backend error:", data);
         alert(data.message || "Login failed");
       }
     } catch (error) {
