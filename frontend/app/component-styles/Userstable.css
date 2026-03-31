@@ -1,0 +1,240 @@
+/* ─── Wrapper ─────────────────────────────────────────────── */
+.users-table-wrapper {
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.users-table-scroll {
+    overflow-x: auto;
+}
+
+/* ─── Table ───────────────────────────────────────────────── */
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+/* ─── Head ────────────────────────────────────────────────── */
+.users-table-head-row {
+    background-color: #f3f4f5;
+}
+
+.users-th {
+    padding: 16px 24px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #43474e;
+    white-space: nowrap;
+}
+
+.users-th--right {
+    text-align: right;
+}
+
+/* ─── Rows ────────────────────────────────────────────────── */
+.users-tr {
+    border-top: 1px solid #f3f4f5;
+    transition: background-color 0.15s ease;
+}
+
+.users-tr:hover {
+    background-color: #f8f9fa;
+}
+
+.users-td {
+    padding: 20px 24px;
+    vertical-align: middle;
+}
+
+.users-td--meta {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    color: #43474e;
+    white-space: nowrap;
+}
+
+.users-td--right {
+    text-align: right;
+}
+
+/* ─── User Identity ───────────────────────────────────────── */
+.user-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.user-avatar-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background-color: #001f3f;
+    color: #ffffff;
+    font-family: 'Lexend', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.user-name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #191c1d;
+}
+
+.user-email {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    color: #43474e;
+    margin-top: 1px;
+}
+
+/* ─── Role Badges ─────────────────────────────────────────── */
+.role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.role-badge--owner {
+    background-color: #4597fe;
+    color: #002e5d;
+}
+
+.role-badge--customer {
+    background-color: #e1e3e4;
+    color: #43474e;
+}
+
+/* ─── Action Buttons ──────────────────────────────────────── */
+.user-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.action-btn {
+    padding: 8px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.action-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.action-btn--primary {
+    color: #005eb2;
+}
+
+.action-btn--primary:hover {
+    background-color: #e7e8e9;
+}
+
+.action-btn--secondary {
+    color: #43474e;
+}
+
+.action-btn--secondary:hover {
+    background-color: #e7e8e9;
+}
+
+/* ─── Table Footer ────────────────────────────────────────── */
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background-color: #ffffff;
+    border-top: 1px solid #f3f4f5;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.table-count {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    color: #43474e;
+    font-weight: 500;
+}
+
+/* ─── Pagination ──────────────────────────────────────────── */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.page-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #191c1d;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled):not(.page-btn--active) {
+    background-color: #f3f4f5;
+}
+
+.page-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.page-btn--active {
+    background-color: #001f3f;
+    color: #ffffff;
+}
+
+.page-btn--nav .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.page-ellipsis {
+    padding: 0 4px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    color: #43474e;
+    align-self: center;
+}

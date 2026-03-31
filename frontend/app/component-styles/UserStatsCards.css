@@ -1,0 +1,91 @@
+/* ─── Grid ────────────────────────────────────────────────── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+@media (min-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ─── Card ────────────────────────────────────────────────── */
+.stats-card {
+    padding: 24px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.stats-card--highlight {
+    border-left: 4px solid #005eb2;
+}
+
+/* ─── Label ───────────────────────────────────────────────── */
+.stats-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: #43474e;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 6px;
+}
+
+/* ─── Value Row ───────────────────────────────────────────── */
+.stats-value-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.stats-value {
+    font-family: 'Lexend', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #191c1d;
+    line-height: 1;
+}
+
+/* ─── Badges ──────────────────────────────────────────────── */
+.stats-badge {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stats-badge--positive {
+    color: #005eb2;
+}
+
+.stats-badge--live {
+    color: #005eb2;
+    font-size: 10px;
+}
+
+.stats-badge--neutral {
+    color: #43474e;
+    font-weight: 500;
+}
+
+/* ─── Live Dot ────────────────────────────────────────────── */
+.stats-live-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #005eb2;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
