@@ -51,7 +51,7 @@ export interface Facility {
 export interface TimeSlot {
     startTime: string;  // "09:00"
     endTime: string;    // "10:00"
-    available: boolean;
+    status: 'available' | 'confirmed' | 'in_progress';
 }
 
 export interface SlotResponse {
@@ -89,8 +89,7 @@ export interface Booking {
 
 export interface CreateBookingData {
     facilityId: string;
-    userId: string;
-    userName: string;
+    // userId and userName are removed, they will be derived from the auth token
     date: string;
     startTime: string;
     endTime: string;
@@ -101,9 +100,7 @@ export interface CreateBookingData {
     holdExpiresAt?: string; // Optional here, will be set in api if not present
 }
 
-export interface CreateBookingResponse extends Booking {
-    // The `payment` object is deprecated as per the new flow
-}
+export type CreateBookingResponse = Booking;
 
 // Used for the booking flow state machine
 export type BookingStep = 'select-facility' | 'select-date' | 'select-slot' | 'confirm' | 'payment' | 'success';

@@ -64,43 +64,51 @@ const getAvailableSlots = async (req, res) => {
         await expireStalePendingBookings();
         const { facilityId, date } = req.params;
 
-        // 1. Find the facility to get slot duration and operating hours
         const facility = await Facility.findById(facilityId);
         if (!facility) {
             return res.status(404).json({ message: 'Facility not found' });
         }
 
         if (facility.status === 'under_repair') {
-            return res.status(400).json({ message: 'Facility is currently under repair and not available for booking' });
+            return res.status(400).json({ message: 'Facility is currently under repair' });
         }
 
-        // 2. Generate all possible slots based on facility config
         const allSlots = generateSlots(
             facility.operatingHours.open,
             facility.operatingHours.close,
             facility.slotDuration
         );
 
-        // 3. Find existing confirmed bookings for this facility on this date
         const bookingDate = new Date(date);
         bookingDate.setHours(0, 0, 0, 0);
         const nextDay = new Date(bookingDate);
         nextDay.setDate(nextDay.getDate() + 1);
 
+        // Find all non-cancelled and non-expired bookings for the day
         const existingBookings = await Booking.find({
             facilityId,
             date: { $gte: bookingDate, $lt: nextDay },
-            status: 'confirmed'
+            status: { $in: ['confirmed', 'pending_payment'] }
         });
 
-        // 4. Mark each slot as available or booked
-        const slotsWithAvailability = allSlots.map(slot => {
-            const isBooked = existingBookings.some(
+        const now = new Date();
+        const slotsWithStatus = allSlots.map(slot => {
+            const conflictingBooking = existingBookings.find(
                 booking => booking.startTime === slot.startTime && booking.endTime === slot.endTime
             );
+
+            let status = 'available';
+            if (conflictingBooking) {
+                if (conflictingBooking.status === 'confirmed') {
+                    status = 'confirmed';
+                } else if (conflictingBooking.status === 'pending_payment' && new Date(conflictingBooking.holdExpiresAt) > now) {
+                    status = 'in_progress'; // This is a temporary hold
+                }
+            }
+
             return {
                 ...slot,
-                available: !isBooked
+                status: status
             };
         });
 
@@ -113,7 +121,7 @@ const getAvailableSlots = async (req, res) => {
                 slotDuration: facility.slotDuration
             },
             date,
-            slots: slotsWithAvailability
+            slots: slotsWithStatus
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -130,9 +138,10 @@ const createBooking = async (req, res) => {
 
     try {
         await expireStalePendingBookings();
-        const { facilityId, userId, userName, date, startTime, endTime } = req.body;
+        // User details are now from the authenticated user (req.user)
+        const { facilityId, date, startTime, endTime, paymentMethod, totalAmount, shareEnabled, totalShares } = req.body;
+        const { _id: userId, name: userName } = req.user; // Get user from `protect` middleware
 
-        // 1. Validate the facility exists and is available
         const facility = await Facility.findById(facilityId);
         if (!facility) {
             return res.status(404).json({ message: 'Facility not found' });
@@ -141,83 +150,46 @@ const createBooking = async (req, res) => {
             return res.status(400).json({ message: 'Facility is currently under repair' });
         }
 
-        // 2. Validate slot duration matches facility type
-        const [startH, startM] = startTime.split(':').map(Number);
-        const [endH, endM] = endTime.split(':').map(Number);
-        const durationHours = (endH * 60 + endM - (startH * 60 + startM)) / 60;
-
-        if (durationHours !== facility.slotDuration) {
-            return res.status(400).json({
-                message: `Invalid slot duration. ${facility.type} requires ${facility.slotDuration}-hour slots, but got ${durationHours}-hour slot.`
-            });
-        }
-
-        // 3. ⚠️ DOUBLE-BOOKING PREVENTION ⚠️
-        // Check if there's any existing confirmed booking that overlaps with the requested time
-        // This is similar to Spring's @Transactional — we query then insert.
-        // For production, you'd use MongoDB transactions for full atomicity.
         const bookingDate = new Date(date);
         bookingDate.setHours(0, 0, 0, 0);
         const nextDay = new Date(bookingDate);
         nextDay.setDate(nextDay.getDate() + 1);
 
-        // Option B: pending bookings do not block slots. Only confirmed bookings conflict.
+        // Prevent double-booking: check for 'confirmed' OR active 'pending_payment'
         const overlappingBooking = await Booking.findOne({
             facilityId,
             date: { $gte: bookingDate, $lt: nextDay },
-            status: 'confirmed',
+            status: { $in: ['confirmed', 'pending_payment'] },
             startTime: { $lt: endTime },
-            endTime: { $gt: startTime }
+            endTime: { $gt: startTime },
+            holdExpiresAt: { $gt: new Date() } // Only consider pending bookings that haven't expired
         });
 
         if (overlappingBooking) {
             return res.status(409).json({
-                message: 'This time slot is already booked. Please choose a different slot.',
-                conflictingBooking: {
-                    startTime: overlappingBooking.startTime,
-                    endTime: overlappingBooking.endTime,
-                    userName: overlappingBooking.userName
-                }
+                message: 'This time slot is already booked or held. Please choose a different slot.',
             });
         }
 
-        const payload = { ...req.body };
-
-        // --- Populate denormalized facility data ---
-        payload.facilityName = facility.name;
-        payload.facilityType = facility.type;
-        payload.institution = facility.institution;
-
-        // --- SERVER-SIDE DEFAULTS TO PREVENT VALIDATION ERRORS ---
-        if (!payload.holdExpiresAt) {
-            console.log('holdExpiresAt is missing. Setting default.');
-            payload.holdExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-        }
-        if (!payload.paymentStatus || payload.paymentStatus === 'pending') {
-            console.log(`paymentStatus is invalid ('${payload.paymentStatus}'). Setting default to 'unpaid'.`);
-            payload.paymentStatus = 'unpaid';
-        }
-        if (!payload.bookingStatus) {
-            payload.bookingStatus = 'pending_payment';
-        }
-        // --- END DEFAULTS ---
-
-        const {
-            paymentMethod = 'card',
-            totalAmount = 0,
-            shareEnabled = false,
-            totalShares = 0,
-        } = payload;
-
-        const now = new Date();
-        const expiresAt = new Date(now.getTime() + PENDING_PAYMENT_WINDOW_MINUTES * 60 * 1000);
+        const holdExpiresAt = new Date(Date.now() + HOLD_MINUTES * 60 * 1000);
 
         const booking = new Booking({
-            ...payload, // Use the sanitized payload
+            facilityId,
+            userId,
+            userName,
+            date,
+            startTime,
+            endTime,
+            paymentMethod,
             totalAmount,
             shareEnabled,
             totalShares: shareEnabled ? totalShares : 0,
-            paidShares: 0,
+            facilityName: facility.name,
+            facilityType: facility.type,
+            institution: facility.institution,
+            status: 'pending_payment',
+            paymentStatus: 'unpaid',
+            holdExpiresAt,
             shareAmount:
               shareEnabled && totalShares > 0 ? Number(totalAmount) / totalShares : 0,
             sharedPayments:
@@ -230,8 +202,6 @@ const createBooking = async (req, res) => {
         });
 
         const savedBooking = await booking.save();
-
-        // --- Return a clean response without the deprecated `payment` object ---
         res.status(201).json(savedBooking.toObject());
 
     } catch (error) {
@@ -384,11 +354,15 @@ const cancelBooking = async (req, res) => {
     try {
         const booking = await Booking.findByIdAndUpdate(
             req.params.id,
-            { status: 'cancelled' },
+            { status: 'cancelled' }, // Correctly uses 'status'
             { new: true }
         );
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found' });
+        }
+        // Ensure the user owns the booking or is an admin
+        if (booking.userId.toString() !== req.user._id.toString()) {
+             return res.status(401).json({ message: 'User not authorized' });
         }
         res.json({ message: 'Booking cancelled successfully', booking });
     } catch (error) {

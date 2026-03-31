@@ -46,19 +46,22 @@ export async function getAvailableSlots(facilityId: string, date: string): Promi
     return res.json();
 }
 
-export async function createBookingWithHold(data: CreateBookingData): Promise<CreateBookingResponse> {
-    console.log("Sending payload to createPendingBooking:", data); // Add this log
+export async function createBookingWithHold(data: CreateBookingData, token: string): Promise<CreateBookingResponse> {
+    console.log("Sending payload to createPendingBooking:", data);
     const res = await fetch(`${API_BASE}/bookings`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(data),
     });
 
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        console.error("Backend Error:", errorData); // Add this log
+        console.error("Backend Error:", errorData);
         throw new Error(
-            errorData.error || errorData.message || `Failed to create booking (${res.status})`
+            errorData.message || `Failed to create booking (${res.status})`
         );
     }
     return res.json();
@@ -106,9 +109,12 @@ export async function getBookingById(id: string): Promise<Booking> {
     return res.json();
 }
 
-export async function cancelBooking(id: string): Promise<{ message: string; booking: Booking }> {
+export async function cancelBooking(id: string, token: string): Promise<{ message: string; booking: Booking }> {
     const res = await fetch(`${API_BASE}/bookings/${id}`, {
         method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
     });
     if (!res.ok) throw new Error('Failed to cancel booking');
     return res.json();

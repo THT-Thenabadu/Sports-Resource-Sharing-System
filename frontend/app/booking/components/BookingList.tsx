@@ -13,17 +13,38 @@ export default function BookingList({ onBack }: BookingListProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [cancellingId, setCancellingId] = useState<string | null>(null);
-    const [searchUserId, setSearchUserId] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('');
+    const [authToken, setAuthToken] = useState<string | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
 
     useEffect(() => {
-        loadBookings();
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        if (token && user) {
+            setAuthToken(token);
+            try {
+                const parsedUser = JSON.parse(user);
+                setUserId(parsedUser._id); // Assumes user object has _id
+            } catch (e) {
+                setError('Could not parse user data.');
+            }
+        } else {
+            setError('You must be logged in to view your bookings.');
+            setLoading(false);
+        }
     }, []);
 
+    useEffect(() => {
+        if (userId) {
+            loadBookings();
+        }
+    }, [userId]);
+
     async function loadBookings() {
+        if (!userId) return;
         try {
             setLoading(true);
-            const data = await getBookings();
+            const data = await getBookings({ userId });
             setBookings(data);
         } catch {
             setError('Failed to load bookings');
@@ -33,12 +54,15 @@ export default function BookingList({ onBack }: BookingListProps) {
     }
 
     async function handleCancel(bookingId: string) {
+        if (!authToken) {
+            alert('Authentication token not found. Please log in again.');
+            return;
+        }
         if (!confirm('Are you sure you want to cancel this booking?')) return;
 
         try {
             setCancellingId(bookingId);
-            await cancelBooking(bookingId);
-            // Refresh the list after cancellation
+            await cancelBooking(bookingId, authToken);
             await loadBookings();
         } catch {
             alert('Failed to cancel booking. Please try again.');
@@ -64,10 +88,8 @@ export default function BookingList({ onBack }: BookingListProps) {
         });
     }
 
-    // Filter bookings
+    // Filter bookings by status
     const filtered = bookings.filter(b => {
-        const userId = (b.userId ?? '').toLowerCase();
-        if (searchUserId && !userId.includes(searchUserId.toLowerCase())) return false;
         if (filterStatus && b.status !== filterStatus) return false;
         return true;
     });
@@ -103,19 +125,8 @@ export default function BookingList({ onBack }: BookingListProps) {
 
             {/* Search & Filter */}
             <div className="flex flex-wrap gap-4 mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                <div className="flex-1 min-w-[250px] relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">🔍</span>
-                    </div>
-                    <input
-                        type="text"
-                        value={searchUserId}
-                        onChange={e => setSearchUserId(e.target.value)}
-                        placeholder="Search by User ID..."
-                        className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-all shadow-sm"
-                    />
-                </div>
-                <div className="w-full sm:w-48">
+                {/* User ID search is removed */}
+                <div className="w-full">
                     <select
                         value={filterStatus}
                         onChange={e => setFilterStatus(e.target.value)}
@@ -125,6 +136,7 @@ export default function BookingList({ onBack }: BookingListProps) {
                         <option value="confirmed">✅ Confirmed</option>
                         <option value="pending_payment">⏳ Pending Payment</option>
                         <option value="cancelled">❌ Cancelled</option>
+                        <option value="expired">Expired</option>
                     </select>
                 </div>
             </div>
@@ -174,10 +186,6 @@ export default function BookingList({ onBack }: BookingListProps) {
                                         <div className="flex items-center gap-2 text-sm text-gray-700">
                                             <span className="p-1.5 bg-white rounded-md shadow-sm">🕐</span>
                                             <span className="font-semibold">{formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                                            <span className="p-1.5 bg-white rounded-md shadow-sm">👤</span>
-                                            <span className="font-medium">{booking.userName} <span className="text-gray-400">({booking.userId})</span></span>
                                         </div>
                                     </div>
 

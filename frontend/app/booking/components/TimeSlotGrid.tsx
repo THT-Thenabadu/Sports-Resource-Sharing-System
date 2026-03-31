@@ -73,7 +73,7 @@ export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSel
         );
     }
 
-    const availableCount = slotData.slots.filter(s => s.available).length;
+    const availableCount = slotData.slots.filter(s => s.status === 'available').length;
     const totalCount = slotData.slots.length;
     const is4HourSlot = slotData.facility.slotDuration === 4;
 
@@ -105,6 +105,10 @@ export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSel
                     <span className="text-gray-600">Available</span>
                 </div>
                 <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-md bg-yellow-100 border-2 border-yellow-200"></div>
+                    <span className="text-yellow-700">In Progress</span>
+                </div>
+                <div className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-md bg-gray-100 border-2 border-gray-200 opacity-60"></div>
                     <span className="text-gray-400">Booked</span>
                 </div>
@@ -118,19 +122,22 @@ export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSel
             <div className={`grid gap-3 ${is4HourSlot ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                 {slotData.slots.map((slot) => {
                     const isSelected = selectedSlot?.startTime === slot.startTime && selectedSlot?.endTime === slot.endTime;
+                    const isAvailable = slot.status === 'available';
 
                     return (
                         <button
                             key={`${slot.startTime}-${slot.endTime}`}
-                            onClick={() => slot.available && onSlotSelect(slot)}
-                            disabled={!slot.available}
+                            onClick={() => isAvailable && onSlotSelect(slot)}
+                            disabled={!isAvailable}
                             className={`
                                 relative p-4 rounded-xl border-2 transition-all duration-300 text-center overflow-hidden
                                 ${isSelected
                                     ? 'border-[#112240] bg-[#112240] text-white shadow-lg shadow-gray-900/20 scale-[1.02] ring-2 ring-offset-2 ring-[#112240]'
-                                    : slot.available
+                                    : isAvailable
                                         ? 'border-gray-200 bg-white text-gray-800 hover:border-[#112240]/50 hover:shadow-md cursor-pointer hover:-translate-y-0.5'
-                                        : 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed opacity-70'
+                                        : slot.status === 'in_progress'
+                                            ? 'border-yellow-200 bg-yellow-50 text-yellow-700 cursor-not-allowed opacity-80'
+                                            : 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed opacity-70'
                                 }
                                 ${is4HourSlot ? 'py-6' : ''}
                             `}
@@ -141,13 +148,13 @@ export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSel
                             <div className={`font-bold tracking-tight ${is4HourSlot ? 'text-xl' : 'text-base'}`}>
                                 {formatTime(slot.startTime)}
                             </div>
-                            <div className={`${isSelected ? 'text-[#64FFDA] font-semibold' : slot.available ? 'text-gray-500 font-medium' : 'text-gray-400'} ${is4HourSlot ? 'text-base' : 'text-xs'} mt-1`}>
+                            <div className={`${isSelected ? 'text-[#64FFDA] font-semibold' : isAvailable ? 'text-gray-500 font-medium' : 'text-inherit'} ${is4HourSlot ? 'text-base' : 'text-xs'} mt-1`}>
                                 to {formatTime(slot.endTime)}
                             </div>
-                            {!slot.available && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 backdrop-blur-[1px]">
-                                    <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] font-bold rounded-md uppercase tracking-wider shadow-sm">
-                                        Booked
+                            {slot.status !== 'available' && !isSelected && (
+                                <div className={`absolute inset-0 flex items-center justify-center ${slot.status === 'in_progress' ? 'bg-yellow-50/80' : 'bg-gray-50/80'} backdrop-blur-[1px]`}>
+                                    <span className={`px-2 py-1 ${slot.status === 'in_progress' ? 'bg-yellow-200 text-yellow-800' : 'bg-gray-200 text-gray-600'} text-[10px] font-bold rounded-md uppercase tracking-wider shadow-sm`}>
+                                        {slot.status === 'in_progress' ? 'In Progress' : 'Booked'}
                                     </span>
                                 </div>
                             )}

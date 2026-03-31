@@ -18,8 +18,8 @@ const bookingSchema = new mongoose.Schema(
         startTime: { type: String, required: true },
         endTime: { type: String, required: true },
 
-        // New Payment/Status Flow
-        bookingStatus: {
+        // Renamed from bookingStatus for consistency
+        status: {
             type: String,
             enum: ['pending_payment', 'confirmed', 'expired', 'cancelled'],
             default: 'pending_payment',
@@ -69,9 +69,9 @@ const bookingSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Index for fast overlap queries — similar to a composite index in relational DBs
+// Index for fast overlap queries
 bookingSchema.index({ facilityId: 1, date: 1, status: 1 });
-bookingSchema.index({ status: 1, expiresAt: 1 });
+// Index for expiring pending bookings
+bookingSchema.index({ status: 1, holdExpiresAt: 1 });
 
 module.exports = mongoose.model('Booking', bookingSchema);
-

@@ -45,7 +45,9 @@ export default function PaymentStep({
             const data = await getSharedStatus(bookingId);
             setStatus(data);
 
-            if (data.bookingStatus === 'confirmed') onPaid(bookingId);
+            if (data.bookingStatus === 'confirmed' && status?.bookingStatus !== 'confirmed') {
+                onPaid(bookingId);
+            }
             if (data.bookingStatus === 'expired') onExpired?.();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to fetch payment status');

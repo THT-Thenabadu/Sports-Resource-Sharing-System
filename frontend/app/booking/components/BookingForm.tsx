@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Facility, TimeSlot, CreateBookingData, CreateBookingResponse, PaymentMethod } from '../types';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Facility, TimeSlot, CreateBookingResponse, PaymentMethod } from '../types';
 import { createBookingWithHold } from '../services/bookingApi';
 
 interface BookingFormProps {
@@ -14,13 +15,23 @@ interface BookingFormProps {
 
 export default function BookingForm({ facility, date, slot, onSuccess, onCancel }: BookingFormProps)
 {
-    // TODO: Replace with actual auth user data when auth system is integrated
-    const [userName, setUserName] = useState('');
-    const [userId, setUserId] = useState('');
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
-    const [totalShares, setTotalShares] = useState(4); // Default for shared
+    const [totalShares, setTotalShares] = useState(4);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [authToken, setAuthToken] = useState<string | null>(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        // In a real app, you'd get this from a global state/context or secure cookie
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('You must be logged in to make a booking. Redirecting to login...');
+            setTimeout(() => router.push('/login'), 2000);
+        } else {
+            setAuthToken(token);
+        }
+    }, [router]);
 
     // Convert "14:00" to "2:00 PM"
     function formatTime(time24: string): string {
@@ -35,8 +46,8 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!userName.trim() || !userId.trim()) {
-            setError('Please fill in all fields');
+        if (!authToken) {
+            setError('Authentication token not found. Please log in again.');
             return;
         }
 
@@ -46,8 +57,6 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
 
             const bookingData = {
                 facilityId: facility._id,
-                userId: userId.trim(),
-                userName: userName.trim(),
                 date,
                 startTime: slot.startTime,
                 endTime: slot.endTime,
@@ -55,30 +64,13 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
                 paymentMethod,
                 shareEnabled: paymentMethod === 'shared',
                 totalShares: paymentMethod === 'shared' ? totalShares : 0,
-                // --- Force correct values directly before fetch ---
-                bookingStatus: 'pending_payment',
-                paymentStatus: 'unpaid',
-                holdExpiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
             };
 
-            // --- Direct fetch to bypass API service caching ---
-            const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-            const res = await fetch(`${API_BASE}/bookings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(bookingData),
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.error || errorData.message || `Failed to create booking (${res.status})`);
-            }
-
-            const result = await res.json();
+            const result = await createBookingWithHold(bookingData, authToken);
             onSuccess(result);
 
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Booking failed. Please try again.');
+            setError(err instanceof Error ? err.message : 'Booking failed. The slot may have been taken. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -129,35 +121,6 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                        <label htmlFor="userName" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Full Name
-                        </label>
-                        <input
-                            type="text"
-                            id="userName"
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-shadow duration-200"
-                            placeholder="John Doe"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="userId" className="block text-sm font-semibold text-gray-700 mb-2">
-                            User ID / NIC
-                        </label>
-                        <input
-                            type="text"
-                            id="userId"
-                            value={userId}
-                            onChange={(e) => setUserId(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-shadow duration-200"
-                            placeholder="e.g., 991234567V"
-                        />
-                    </div>
-                </div>
-
                 {/* Payment Method Selection */}
                 <div className="pt-4 border-t border-gray-100">
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Payment Method</label>
@@ -219,7 +182,7 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
                     </button>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !authToken}
                         className="flex-1 px-6 py-3.5 bg-[#112240] text-white font-semibold rounded-xl hover:bg-gray-900 focus:ring-4 focus:ring-[#112240]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-gray-900/10 flex justify-center items-center gap-2"
                     >
                         {loading ? (
