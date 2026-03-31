@@ -122,125 +122,152 @@ export default function PaymentStep({
     };
 
     return (
-        <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Complete Payment</h2>
+        <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
+            <h2 className="text-2xl font-bold text-[#112240] mb-6 flex items-center gap-2">
+                <span className="text-3xl">💳</span> Complete Payment
+            </h2>
 
-            <div className="bg-[#f8f9fb] rounded-xl p-5 mb-6 border border-gray-200 space-y-2">
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Booking ID</span>
-                    <span className="font-mono text-gray-800">{bookingId}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Booking Status</span>
-                    <span className="font-medium text-gray-800">{status?.bookingStatus || 'loading...'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Payment Status</span>
-                    <span className="font-medium text-gray-800">{status?.paymentStatus || 'loading...'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Pay Before</span>
-                    <span className="font-medium text-orange-700">{expiresAtLabel}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Time Left</span>
-                    <span className="font-semibold text-[#1a2332]">{secondsLeft}s</span>
+            <div className="bg-[#112240] rounded-2xl p-6 mb-6 text-white shadow-xl shadow-gray-900/10 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#64FFDA] opacity-10 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
+                <h3 className="text-xs font-bold text-[#64FFDA] uppercase tracking-widest mb-4">Transaction Details</h3>
+
+                <div className="space-y-3 relative z-10">
+                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                        <span className="text-gray-300 text-sm">Booking ID</span>
+                        <span className="font-mono text-white text-sm bg-black/20 px-2 py-1 rounded">{bookingId}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                        <span className="text-gray-300 text-sm">Booking Status</span>
+                        <span className="font-semibold text-white uppercase text-xs tracking-wider">{(status?.bookingStatus || 'loading...').replace('_', ' ')}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                        <span className="text-gray-300 text-sm">Payment Status</span>
+                        <span className="font-semibold text-[#64FFDA] uppercase text-xs tracking-wider">{status?.paymentStatus || 'loading...'}</span>
+                    </div>
+
+                    <div className="mt-6 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p className="text-orange-200 text-xs font-semibold uppercase tracking-wider mb-1">Pay Before</p>
+                            <p className="font-medium text-orange-400">{expiresAtLabel}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-orange-200 text-xs font-semibold uppercase tracking-wider mb-1">Time Left</p>
+                            <p className="font-bold text-2xl text-orange-400 font-mono tracking-tighter">{secondsLeft}s</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 mb-4">
-                    {error}
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 mb-6 flex items-start gap-2 shadow-sm">
+                    <span className="text-red-500">⚠️</span> {error}
                 </div>
             )}
 
-            {status?.paymentMethod === 'card' && (
-                <div className="mb-4">
-                    <button
-                        type="button"
-                        onClick={handleCard}
-                        disabled={loading}
-                        className="w-full px-4 py-2.5 bg-[#1a2332] text-white rounded-lg hover:bg-[#2a3a4e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-                    >
-                        {loading ? 'Processing...' : 'Confirm & Pay via Card'}
-                    </button>
-                    <p className="text-xs text-gray-500 mt-2 text-center">Clicking this will simulate a successful card payment.</p>
-                </div>
-            )}
-
-            {status?.paymentMethod === 'onsite' && (
-                <div className="mb-4">
-                    <button
-                        type="button"
-                        onClick={handleOnsite}
-                        disabled={loading}
-                        className="w-full px-4 py-2.5 bg-[#1a2332] text-white rounded-lg hover:bg-[#2a3a4e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-                    >
-                        {loading ? 'Processing...' : 'Confirm Booking (Pay On-site)'}
-                    </button>
-                    <p className="text-xs text-gray-500 mt-2 text-center">Your booking will be confirmed immediately. Please pay at the facility.</p>
-                </div>
-            )}
-
-            {status?.paymentMethod === 'shared' && (status?.totalShares || 0) > 0 && (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 mb-4">
-                    <p className="text-sm border-b pb-2 font-medium text-gray-700 mb-3">
-                        Shared Payment Allocation ({status?.paidShares || 0}/{status?.totalShares || 0} paid)
-                    </p>
-                    <div className="flex flex-col gap-2">
-                        {status?.sharedPayments?.map((s) => (
-                            <div key={s.shareIndex} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
-                                <span className="text-sm font-medium text-gray-700">Share #{s.shareIndex}</span>
-                                <button
-                                    type="button"
-                                    disabled={loading || s.status === 'paid'}
-                                    onClick={() => handlePayShare(s.shareIndex)}
-                                    className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                        s.status === 'paid' 
-                                            ? 'bg-green-100 text-green-700 border border-green-200' 
-                                            : 'bg-[#1a2332] text-white hover:bg-[#2a3a4e] disabled:opacity-50 disabled:cursor-not-allowed'
-                                    }`}
-                                >
-                                    {s.status === 'paid' ? 'Paid ✓' : 'Pay This Share'}
-                                </button>
-                            </div>
-                        ))}
+            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm mb-6">
+                {status?.paymentMethod === 'card' && (
+                    <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto text-3xl mb-2">💳</div>
+                        <button
+                            type="button"
+                            onClick={handleCard}
+                            disabled={loading}
+                            className="w-full px-6 py-3.5 bg-[#112240] text-white font-semibold rounded-xl hover:bg-gray-800 focus:ring-4 focus:ring-[#112240]/30 disabled:opacity-70 transition-all shadow-md flex items-center justify-center gap-2"
+                        >
+                            {loading ? (
+                                <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Processing...</>
+                            ) : 'Confirm & Pay via Card'}
+                        </button>
+                        <p className="text-sm text-gray-500 font-medium">Clicking this will simulate a successful card payment.</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-3 text-center">Booking will be confirmed once all shares are paid.</p>
-                </div>
-            )}
+                )}
 
-            {/* Fallback if paymentMethod is unknown or loading */}
-            {!status?.paymentMethod && !loading && status && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                    <button
-                        type="button"
-                        onClick={handleCard}
-                        disabled={loading}
-                        className="px-4 py-2.5 bg-[#1a2332] text-white rounded-lg hover:bg-[#2a3a4e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-                    >
-                        {loading ? 'Processing...' : 'Card Payment'}
-                    </button>
+                {status?.paymentMethod === 'onsite' && (
+                    <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto text-3xl mb-2">💵</div>
+                        <button
+                            type="button"
+                            onClick={handleOnsite}
+                            disabled={loading}
+                            className="w-full px-6 py-3.5 bg-[#112240] text-white font-semibold rounded-xl hover:bg-gray-800 focus:ring-4 focus:ring-[#112240]/30 disabled:opacity-70 transition-all shadow-md flex items-center justify-center gap-2"
+                        >
+                            {loading ? (
+                                <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Processing...</>
+                            ) : 'Confirm Booking (Pay On-site)'}
+                        </button>
+                        <p className="text-sm text-gray-500 font-medium">Your booking will be confirmed immediately. Please pay at the facility.</p>
+                    </div>
+                )}
 
-                    <button
-                        type="button"
-                        onClick={handleOnsite}
-                        disabled={loading}
-                        className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        On-site Payment
-                    </button>
-                </div>
-            )}
+                {status?.paymentMethod === 'shared' && (status?.totalShares || 0) > 0 && (
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-2">
+                            <h4 className="font-bold text-gray-800">Shared Payment Allocation</h4>
+                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-semibold">
+                                {status?.paidShares || 0} / {status?.totalShares || 0} Paid
+                            </span>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            {status?.sharedPayments?.map((s) => (
+                                <div key={s.shareIndex} className="flex justify-between items-center bg-gray-50 border border-gray-100 p-4 rounded-xl transition-colors hover:border-gray-200">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${s.status === 'paid' ? 'bg-green-100 text-green-600' : 'bg-white border-2 border-gray-200 text-gray-500'}`}>
+                                            {s.shareIndex}
+                                        </div>
+                                        <span className="font-semibold text-gray-700">Share #{s.shareIndex}</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        disabled={loading || s.status === 'paid'}
+                                        onClick={() => handlePayShare(s.shareIndex)}
+                                        className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${
+                                            s.status === 'paid' 
+                                                ? 'bg-green-500 text-white shadow-green-500/20' 
+                                                : 'bg-[#112240] text-white hover:bg-gray-800 hover:shadow-gray-900/20 border border-transparent disabled:opacity-50'
+                                        }`}
+                                    >
+                                        {s.status === 'paid' ? 'Paid ✓' : 'Pay This Share'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="bg-blue-50 text-blue-800 p-3 rounded-lg text-sm font-medium text-center mt-2 flex justify-center items-center gap-2">
+                            <span className="text-xl">ℹ️</span> Booking will be confirmed once all shares are paid.
+                        </div>
+                    </div>
+                )}
+
+                {/* Fallback if paymentMethod is unknown or loading */}
+                {!status?.paymentMethod && !loading && status && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button
+                            type="button"
+                            onClick={handleCard}
+                            disabled={loading}
+                            className="px-6 py-3.5 bg-[#112240] text-white font-semibold rounded-xl hover:bg-gray-800 transition-all shadow-md"
+                        >
+                            {loading ? 'Processing...' : 'Card Payment'}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleOnsite}
+                            disabled={loading}
+                            className="px-6 py-3.5 border-2 border-gray-200 text-gray-700 bg-white font-semibold rounded-xl hover:bg-gray-50 transition-all"
+                        >
+                            On-site Payment
+                        </button>
+                    </div>
+                )}
+            </div>
 
             <button
                 type="button"
                 onClick={onBack}
-                className="w-full px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="w-full px-6 py-3.5 border-2 border-gray-200 text-gray-700 bg-white font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all flex justify-center items-center gap-2"
             >
-                Back
+                <span>←</span> Go Back
             </button>
         </div>
     );
 }
-

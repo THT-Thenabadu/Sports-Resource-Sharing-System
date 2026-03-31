@@ -89,7 +89,7 @@ export default function BookingPage() {
     if (showBookingList) {
         return (
             <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-5xl mx-auto">
+                <div className="w-full max-w-7xl mx-auto">
                     <BookingList onBack={() => setShowBookingList(false)} />
                 </div>
             </div>
@@ -98,7 +98,7 @@ export default function BookingPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-5xl mx-auto space-y-8">
+            <div className="w-full max-w-7xl mx-auto space-y-8">
                 {/* Page Header */}
                 <div className="flex items-center justify-between">
                     <div>

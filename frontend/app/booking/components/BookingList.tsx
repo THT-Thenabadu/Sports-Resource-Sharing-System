@@ -66,115 +66,146 @@ export default function BookingList({ onBack }: BookingListProps) {
 
     // Filter bookings
     const filtered = bookings.filter(b => {
-        if (searchUserId && !b.userId.toLowerCase().includes(searchUserId.toLowerCase())) return false;
+        const userId = (b.userId ?? '').toLowerCase();
+        if (searchUserId && !userId.includes(searchUserId.toLowerCase())) return false;
         if (filterStatus && b.status !== filterStatus) return false;
         return true;
     });
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1a2332]"></div>
-                <span className="ml-3 text-gray-600">Loading bookings...</span>
+            <div className="flex flex-col items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-[#112240]"></div>
+                <span className="mt-4 text-gray-500 font-medium">Loading your bookings...</span>
             </div>
         );
     }
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">My Bookings</h2>
+        <div className="animate-in fade-in duration-500 max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+                <h2 className="text-3xl font-bold text-[#112240] flex items-center gap-3">
+                    <span className="text-3xl">📋</span> My Bookings
+                </h2>
                 <button
                     onClick={onBack}
-                    className="text-sm text-[#4a9ece] hover:text-[#1a2332] font-medium"
+                    className="px-4 py-2 border-2 border-gray-200 text-gray-700 bg-white rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-semibold shadow-sm text-sm flex items-center gap-2"
                 >
-                    ← Back to Booking
+                    <span>←</span> Back to Booking
                 </button>
             </div>
 
             {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-sm text-red-700">
-                    {error}
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-sm text-red-700 font-medium flex items-center gap-2 shadow-sm">
+                    <span className="text-red-500">⚠️</span> {error}
                 </div>
             )}
 
             {/* Search & Filter */}
-            <div className="flex flex-wrap gap-3 mb-4">
-                <input
-                    type="text"
-                    value={searchUserId}
-                    onChange={e => setSearchUserId(e.target.value)}
-                    placeholder="Search by User ID..."
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#4a9ece] focus:border-[#4a9ece] flex-1 min-w-[200px]"
-                />
-                <select
-                    value={filterStatus}
-                    onChange={e => setFilterStatus(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#4a9ece] focus:border-[#4a9ece] bg-white"
-                >
-                    <option value="">All Status</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
+            <div className="flex flex-wrap gap-4 mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div className="flex-1 min-w-[250px] relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-400">🔍</span>
+                    </div>
+                    <input
+                        type="text"
+                        value={searchUserId}
+                        onChange={e => setSearchUserId(e.target.value)}
+                        placeholder="Search by User ID..."
+                        className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-all shadow-sm"
+                    />
+                </div>
+                <div className="w-full sm:w-48">
+                    <select
+                        value={filterStatus}
+                        onChange={e => setFilterStatus(e.target.value)}
+                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-all shadow-sm"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="confirmed">✅ Confirmed</option>
+                        <option value="pending_payment">⏳ Pending Payment</option>
+                        <option value="cancelled">❌ Cancelled</option>
+                    </select>
+                </div>
             </div>
 
             {filtered.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                    <p className="text-lg mb-2">No bookings found</p>
-                    <p className="text-sm">
-                        {bookings.length > 0 ? 'Try adjusting your filters.' : 'Start by making a booking!'}
+                <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+                    <span className="text-5xl block mb-4">📭</span>
+                    <p className="text-xl font-bold text-gray-700 mb-2">No bookings found</p>
+                    <p className="text-gray-500">
+                        {bookings.length > 0 ? 'Try adjusting your filters.' : 'You haven\'t made any bookings yet!'}
                     </p>
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {filtered.map(booking => (
                         <div
                             key={booking._id}
-                            className={`border rounded-xl p-4 transition-all ${
+                            className={`border-2 rounded-2xl p-5 sm:p-6 transition-all duration-300 ${
                                 booking.status === 'cancelled'
-                                    ? 'border-gray-200 bg-gray-50 opacity-70'
-                                    : 'border-gray-200 bg-white hover:shadow-md'
+                                    ? 'border-gray-100 bg-gray-50/50 opacity-75'
+                                    : 'border-gray-100 bg-white hover:border-[#112240]/20 hover:shadow-lg'
                             }`}
                         >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <h3 className="font-semibold text-gray-800">{booking.facilityName}</h3>
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                            <div className="flex flex-col sm:flex-row gap-5">
+                                <div className="flex-1 space-y-3">
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        <h3 className="text-lg font-bold text-[#112240]">{booking.facilityName}</h3>
+                                        <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${
                                             booking.status === 'confirmed'
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-red-100 text-red-700'
+                                                ? 'bg-green-100 text-green-800 border border-green-200'
+                                                : booking.status === 'pending_payment'
+                                                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                                    : 'bg-red-100 text-red-800 border border-red-200'
                                         }`}>
-                                            {booking.status}
+                                            {(booking.status ?? 'unknown').replace('_', ' ')}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-500">{booking.institution}</p>
-                                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-600">
-                                        <span>📅 {formatDate(booking.date)}</span>
-                                        <span>🕐 {formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
-                                        <span>👤 {booking.userName} ({booking.userId})</span>
+                                    <p className="text-sm font-semibold text-gray-500 flex items-center gap-1.5">
+                                        <span className="text-lg">🏛️</span> {booking.institution}
+                                    </p>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                                            <span className="p-1.5 bg-white rounded-md shadow-sm">📅</span>
+                                            <span className="font-semibold">{formatDate(booking.date)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                                            <span className="p-1.5 bg-white rounded-md shadow-sm">🕐</span>
+                                            <span className="font-semibold">{formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                                            <span className="p-1.5 bg-white rounded-md shadow-sm">👤</span>
+                                            <span className="font-medium">{booking.userName} <span className="text-gray-400">({booking.userId})</span></span>
+                                        </div>
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        ID: <span className="font-mono">{booking._id}</span>
+
+                                    <p className="text-xs text-gray-400 mt-2 font-mono bg-gray-100 inline-block px-2 py-1 rounded">
+                                        ID: {booking._id}
                                     </p>
                                 </div>
 
-                                {booking.status === 'confirmed' && (
-                                    <button
-                                        onClick={() => handleCancel(booking._id)}
-                                        disabled={cancellingId === booking._id}
-                                        className="px-4 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors whitespace-nowrap"
-                                    >
-                                        {cancellingId === booking._id ? 'Cancelling...' : 'Cancel Booking'}
-                                    </button>
-                                )}
+                                <div className="flex flex-col justify-between items-end gap-4 min-w-[140px]">
+                                    {booking.status === 'confirmed' || booking.status === 'pending_payment' ? (
+                                        <button
+                                            onClick={() => handleCancel(booking._id)}
+                                            disabled={cancellingId === booking._id}
+                                            className="w-full sm:w-auto px-5 py-2.5 bg-red-50 text-red-600 border border-red-200 font-semibold rounded-xl hover:bg-red-600 hover:text-white disabled:opacity-50 transition-all shadow-sm"
+                                        >
+                                            {cancellingId === booking._id ? 'Cancelling...' : 'Cancel'}
+                                        </button>
+                                    ) : (
+                                        <div className="h-10"></div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
 
-            <div className="mt-4 text-sm text-gray-400 text-center">
+            <div className="mt-8 text-sm font-semibold text-gray-400 text-center bg-gray-50 py-2 rounded-xl">
                 Showing {filtered.length} of {bookings.length} bookings
             </div>
         </div>
