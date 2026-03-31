@@ -402,7 +402,7 @@ const createPendingBooking = async (req, res) => {
 
         const booking = await Booking.create({
             ...req.body,
-            bookingStatus: "pending_payment",
+            status: "pending_payment", // Use correct field
             paymentMethod: paymentMethod,
             paymentStatus: "unpaid",
             holdExpiresAt,
@@ -434,13 +434,13 @@ const payByCard = async (req, res) => {
         if (!booking) return res.status(404).json({ message: "Booking not found" });
 
         await expireIfNeeded(booking);
-        if (booking.bookingStatus === "expired") {
+        if (booking.status === "expired") { // Use correct field
             return res.status(409).json({ message: "Booking hold expired" });
         }
 
         booking.paymentMethod = "card";
         booking.paymentStatus = "paid";
-        booking.bookingStatus = "confirmed";
+        booking.status = "confirmed"; // Use correct field
         await booking.save();
 
         return res.json(booking);
@@ -530,10 +530,13 @@ const getSharedStatus = async (req, res) => {
 
         await expireIfNeeded(booking);
 
+        // No authorization check here, as this can be a public status page
+        // for shared payments.
+
         return res.json({
             bookingId: booking._id,
-            bookingStatus: booking.bookingStatus,
-            paymentMethod: booking.paymentMethod, // added this
+            bookingStatus: booking.status, // Use correct field
+            paymentMethod: booking.paymentMethod,
             paymentStatus: booking.paymentStatus,
             holdExpiresAt: booking.holdExpiresAt,
             totalShares: booking.totalShares,

@@ -122,8 +122,11 @@ export async function cancelBooking(id: string, token: string): Promise<{ messag
 
 // --- New Payment Endpoints ---
 
-export async function payBookingByCard(id: string) {
-    const res = await fetch(`${API_BASE}/bookings/${id}/pay/card`, { method: "POST" });
+export async function payBookingByCard(id: string, token: string) {
+    const res = await fetch(`${API_BASE}/bookings/${id}/pay/card`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || errorData.message || 'Card payment failed');
@@ -131,8 +134,11 @@ export async function payBookingByCard(id: string) {
     return res.json();
 }
 
-export async function payBookingOnsite(id: string) {
-    const res = await fetch(`${API_BASE}/bookings/${id}/pay/onsite`, { method: "POST" });
+export async function payBookingOnsite(id: string, token: string) {
+    const res = await fetch(`${API_BASE}/bookings/${id}/pay/onsite`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || errorData.message || 'On-site payment selection failed');
@@ -143,11 +149,15 @@ export async function payBookingOnsite(id: string) {
 export async function paySharedShare(
     id: string,
     shareIndex: number,
-    payload: { payerName?: string; payerContact?: string }
+    payload: { payerName?: string; payerContact?: string },
+    token: string
 ) {
     const res = await fetch(`${API_BASE}/bookings/${id}/shared/pay/${shareIndex}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(payload),
     });
     if (!res.ok) {

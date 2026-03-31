@@ -39,6 +39,16 @@ export default function PaymentStep({
     const [status, setStatus] = useState<SharedStatusResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [authToken, setAuthToken] = useState<string | null>(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            setAuthToken(token);
+        } else {
+            setError('Authentication token not found. Please log in.');
+        }
+    }, []);
 
     const refresh = async () => {
         try {
@@ -85,10 +95,11 @@ export default function PaymentStep({
     }, [secondsLeft, status?.bookingStatus, onExpired]);
 
     const handleCard = async () => {
+        if (!authToken) return setError('You are not authenticated.');
         setLoading(true);
         setError('');
         try {
-            await payBookingByCard(bookingId);
+            await payBookingByCard(bookingId, authToken);
             await refresh();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Card payment failed');
@@ -98,10 +109,11 @@ export default function PaymentStep({
     };
 
     const handleOnsite = async () => {
+        if (!authToken) return setError('You are not authenticated.');
         setLoading(true);
         setError('');
         try {
-            await payBookingOnsite(bookingId);
+            await payBookingOnsite(bookingId, authToken);
             await refresh();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'On-site selection failed');
@@ -111,10 +123,11 @@ export default function PaymentStep({
     };
 
     const handlePayShare = async (shareIndex: number) => {
+        if (!authToken) return setError('You are not authenticated.');
         setLoading(true);
         setError('');
         try {
-            await paySharedShare(bookingId, shareIndex, {});
+            await paySharedShare(bookingId, shareIndex, {}, authToken);
             await refresh();
         } catch (err) {
             setError(err instanceof Error ? err.message : `Share ${shareIndex} payment failed`);
