@@ -14,6 +14,11 @@
     align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.1);
   }
+  .navbar-username {
+    font-weight: 600;
+    color: your-preferred-color;  /* match your existing navbar text color */
+    font-size: 0.95rem;
+  }
   
   .navbar-brand {
     display: flex;

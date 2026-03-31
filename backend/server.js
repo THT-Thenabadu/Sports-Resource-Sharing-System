@@ -13,6 +13,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use(cors({
+  origin: 'http://localhost:3000', // ✅ explicitly allow Next.js frontend
+  credentials: true
+}));
+
 // ✅ Session & Passport BEFORE routes
 app.use(session({
   secret: process.env.SESSION_SECRET,
