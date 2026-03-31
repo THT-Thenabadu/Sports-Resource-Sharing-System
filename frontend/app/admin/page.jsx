@@ -1,3 +1,7 @@
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 // app/dashboard/admin/users/page.js
 import AdminSidebar from '../components/Adminsidebar';
 import AdminTopBar from '../components/Admintopbar';
@@ -6,6 +10,16 @@ import UsersTable from '../components/Userstable';
 import AdminTipCard from '../components/AdminTipCard';
 
 export default function ManageUsersPage() {
+    
+    const router = useRouter();
+
+    useEffect(() => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.role !== 'admin') {
+        router.push('/'); // ✅ kick non-admins back to homepage
+      }
+    }, []);
+    
     return (
         <div style={{ display: 'flex' }}>
             <AdminSidebar />
