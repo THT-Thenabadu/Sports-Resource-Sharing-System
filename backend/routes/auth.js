@@ -26,10 +26,34 @@ router.post('/register', async (req, res) => {
 // ─── Login Route ──────────────────────────────────────────
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, identifier, username, name, password } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid email or password" }); // ✅ was !User (wrong)
+    if (!password) {
+      return res.status(400).json({ message: 'Password is required' });
+    }
+
+    const candidates = [email, identifier, username, name].filter(
+      (v) => v && String(v).trim().length > 0
+    );
+
+    // Require exactly ONE identifier (email or username/name).
+    if (candidates.length !== 1) {
+      return res
+        .status(400)
+        .json({ message: 'Please provide exactly one identifier (email or username).' });
+    }
+
+    const raw = String(candidates[0]).trim();
+
+    // If it looks like an email, search by email. Otherwise search by `User.name`.
+    const looksLikeEmail = raw.includes('@');
+    const user = looksLikeEmail
+      ? await User.findOne({ email: raw })
+      : await User.findOne({
+          name: { $regex: new RegExp(`^${raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+        });
+
+    if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
