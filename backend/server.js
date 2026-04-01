@@ -6,6 +6,8 @@ const session = require('express-session');
 const passport = require('passport');
 require('./config/passport'); // ✅ load passport config
 
+const createSuperAdmin = require('./utils/createSuperAdmin');
+
 const authRoutes = require('./routes/auth');
 const app = express();
 
@@ -37,3 +39,10 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(async () => {
+    console.log("✅ Sportek DB Connected");
+    await createSuperAdmin(); // ✅ runs on every startup, skips if exists
+  })
+  .catch(err => console.log("❌ DB Error:", err));

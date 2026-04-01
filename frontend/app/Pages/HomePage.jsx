@@ -4,6 +4,7 @@ import Value from "../components/Value.jsx";
 import Ctabanner from "../components/Ctabanner.jsx";
 import Featured from "../components/featured.jsx";
 import UpcomingEvents from "../components/UpcomingEvents.jsx";
+import PropertyOwnerCta from "../components/PropertyOwnerCta.jsx";
 
 
 const HomePage = () => {
@@ -14,6 +15,7 @@ const HomePage = () => {
           <Hero />
           <Value />
           <Ctabanner />
+          <PropertyOwnerCta />
           <Featured />
             <UpcomingEvents />
 

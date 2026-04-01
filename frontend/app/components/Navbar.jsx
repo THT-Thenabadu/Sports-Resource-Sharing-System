@@ -26,7 +26,7 @@ const Navbar = () => {
     localStorage.removeItem('user');
     setUser(null);
     window.dispatchEvent(new Event('userUpdated'));
-    router.push('/');
+    window.location.href = '/'; // ✅ full page reload instead of soft nav
   };
 
   return (
