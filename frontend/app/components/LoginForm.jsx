@@ -48,7 +48,7 @@ export default function LoginForm() {
         if (data.role === 'admin') {
           window.location.href = '/admin';
         } else if (data.role === 'owner') {
-          window.location.href = '/dashboard/owner';
+          window.location.href = '/propertyowner';
         } else {
           window.location.href = '/'; // customer goes to homepage
         }

@@ -66,7 +66,7 @@ export default function OwnerApplication() {
         alert('Application submitted! You will hear back within 24 hours.');
         router.push('/');
       } else {
-        console.error('Error response:', data); 
+       
         alert(data.message || 'Something went wrong');
       }
     } catch (error) {
