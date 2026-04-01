@@ -40,10 +40,56 @@ export default function RegisterPropertyPage() {
   };
 
   const handleSubmit = async () => {
-    console.log('Submitting:', form);
-    // ✅ Backend call will go here later
-    alert('Property submitted for review!');
-    router.push('/');
+    try {
+      const token = localStorage.getItem('token');
+  
+      // ✅ Use FormData to handle both text fields and images
+      const formData = new FormData();
+  
+      // Text fields
+      formData.append('title', form.title);
+      formData.append('description', form.description);
+      formData.append('sportType', form.sportType);
+      formData.append('propertyType', form.propertyType);
+      formData.append('address', form.address);
+      formData.append('city', form.city);
+      formData.append('postalCode', form.postalCode);
+      formData.append('mapsLink', form.mapsLink);
+      formData.append('pricePerHour', form.pricePerHour);
+      formData.append('maxPlayers', form.maxPlayers);
+      formData.append('openingTime', form.openingTime);
+      formData.append('closingTime', form.closingTime);
+  
+      // Arrays need to be JSON stringified
+      formData.append('availableDays', JSON.stringify(form.availableDays));
+      formData.append('amenities', JSON.stringify(form.amenities));
+  
+      // ✅ Append each image file
+      form.images.forEach(image => {
+        formData.append('images', image);
+      });
+  
+      const res = await fetch('http://localhost:8000/api/properties/register', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+          // ✅ Don't set Content-Type — browser sets it automatically for FormData
+        },
+        body: formData
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        alert('Property submitted for review!');
+        router.push('/');
+      } else {
+        alert(data.message || 'Something went wrong');
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert('Could not connect to server');
+    }
   };
 
   return (
