@@ -656,3 +656,346 @@
      color: #0f172a;
      text-decoration: underline;
    }
+
+   /* ── Eyebrow ── */
+.pod-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #005eb2);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+/* ── Stats Bar ── */
+.pod-stats-bar {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  align-items: center;
+}
+
+.pod-stat-box {
+  background: var(--color-surface-container-low, #f3f4f5);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.pod-stat-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.pod-stat-number {
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.pod-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pod-filter-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.pod-filter-btn {
+  background: #e7e8e9;
+  color: #43474e;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pod-filter-btn--active {
+  background: #005eb2;
+  color: #fff;
+}
+
+/* ── Loading ── */
+.pod-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem;
+  color: #6b7280;
+}
+
+.pod-loading-icon {
+  font-size: 2.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Grid ── */
+.pod-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+/* ── Property Card ── */
+.pod-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.06);
+  transition: box-shadow 0.3s;
+}
+
+.pod-card:hover {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+.pod-card-img-wrap {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pod-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+
+.pod-card:hover .pod-card-img {
+  transform: scale(1.05);
+}
+
+.pod-card-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #e7e8e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 3rem;
+}
+
+.pod-card-badges {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Badges ── */
+.pod-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pod-badge--active { background: #10b981; color: #fff; }
+.pod-badge--pending { background: #f59e0b; color: #fff; }
+.pod-badge--inactive { background: #9ca3af; color: #fff; }
+.pod-badge--verified {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(12px);
+  color: #191c1d;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.pod-badge--verified .material-symbols-outlined {
+  font-size: 0.9rem;
+  color: #005eb2;
+}
+
+/* ── Card Body ── */
+.pod-card-body { padding: 1.5rem; }
+
+.pod-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.pod-card-sport {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #005eb2;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.pod-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000613;
+}
+
+.pod-card-price {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #000613;
+  white-space: nowrap;
+}
+
+.pod-card-price-unit {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.pod-card-location {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.pod-card-location .material-symbols-outlined { font-size: 1.1rem; }
+
+.pod-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding-top: 1rem;
+}
+
+.pod-card-edit-btn {
+  background: #e7e8e9;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pod-card-edit-btn:hover { background: #d1d5db; }
+.pod-card-edit-btn .material-symbols-outlined { font-size: 1rem; }
+
+.pod-card-status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pod-card-status-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+}
+
+.pod-toggle {
+  width: 48px;
+  height: 24px;
+  background: #e7e8e9;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pod-toggle--on { background: #005eb2; }
+
+.pod-toggle-thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: left 0.2s;
+}
+
+.pod-toggle--on .pod-toggle-thumb { left: 28px; }
+
+/* ── Add New Card ── */
+.pod-card-add {
+  background: #f3f4f5;
+  border: 2px dashed rgba(0,0,0,0.15);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-height: 300px;
+}
+
+.pod-card-add:hover { border-color: #005eb2; }
+
+.pod-card-add-icon {
+  width: 56px;
+  height: 56px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.pod-card-add-icon .material-symbols-outlined {
+  font-size: 1.75rem;
+  color: #005eb2;
+}
+
+.pod-card-add-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000613;
+  margin-bottom: 0.5rem;
+}
+
+.pod-card-add-desc {
+  font-size: 0.82rem;
+  color: #6b7280;
+  max-width: 200px;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.pod-card-add-cta {
+  color: #005eb2;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
