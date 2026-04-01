@@ -41,7 +41,7 @@ export default function PropertyOwnerCta() {
           </p>
           <div className="owner-cta-actions">
             <button className="owner-cta-btn-primary"
-            onClick={() => router.push('/properties/register')}
+            onClick={() => router.push('/become-owner')}
             >Get Started</button>
             <button className="owner-cta-btn-secondary">Learn More</button>
           </div>

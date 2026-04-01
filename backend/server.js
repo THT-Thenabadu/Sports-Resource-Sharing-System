@@ -49,3 +49,8 @@ mongoose.connect(process.env.MONGODB_URI) // ✅ only one mongoose.connect
     app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
   })
   .catch(err => console.log("❌ DB Error:", err));
+
+  const ownerApplicationRoutes = require('./routes/ownerApplication');
+
+// add this with the other routes
+app.use('/api/owner-application', ownerApplicationRoutes);

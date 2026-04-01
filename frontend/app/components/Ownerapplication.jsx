@@ -32,10 +32,47 @@ export default function OwnerApplication() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // ✅ Backend call will go here
-    console.log('Submitting application:', form);
-    alert('Application submitted! You will hear back within 24 hours.');
-    router.push('/');
+  
+    // Basic validation
+    if (!form.agreeTerms || !form.agreeAccuracy) {
+      alert('Please agree to both checkboxes before submitting.');
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:8000/api/owner-application/apply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          businessName: form.businessName,
+          businessType: form.businessType,
+          phone: form.phone,
+          idNumber: form.idNumber,
+          country: form.country,
+          province: form.province,
+          address: form.address,
+          propertyCount: form.propertyCount,
+          bio: form.bio,
+        })
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        alert('Application submitted! You will hear back within 24 hours.');
+        router.push('/');
+      } else {
+        console.error('Error response:', data); 
+        alert(data.message || 'Something went wrong');
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert('Could not connect to server');
+    }
   };
 
   return (
