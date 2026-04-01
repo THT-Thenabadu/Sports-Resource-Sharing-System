@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const passport = require('passport'); // ✅ moved to top
+const passport = require('passport');
 const User = require('../models/User');
-const isAdmin = require('../middleware/isAdmin'); // ✅ must be here
+const isAdmin = require('../middleware/isAdmin');
 
 // ─── Register Route ───────────────────────────────────────
 router.post('/register', async (req, res) => {
@@ -29,24 +29,17 @@ router.post('/login', async (req, res) => {
   try {
     const { email, identifier, username, name, password } = req.body;
 
-    if (!password) {
-      return res.status(400).json({ message: 'Password is required' });
-    }
+    if (!password) return res.status(400).json({ message: 'Password is required' });
 
     const candidates = [email, identifier, username, name].filter(
       (v) => v && String(v).trim().length > 0
     );
 
-    // Require exactly ONE identifier (email or username/name).
     if (candidates.length !== 1) {
-      return res
-        .status(400)
-        .json({ message: 'Please provide exactly one identifier (email or username).' });
+      return res.status(400).json({ message: 'Please provide exactly one identifier.' });
     }
 
     const raw = String(candidates[0]).trim();
-
-    // If it looks like an email, search by email. Otherwise search by `User.name`.
     const looksLikeEmail = raw.includes('@');
     const user = looksLikeEmail
       ? await User.findOne({ email: raw })
@@ -56,11 +49,15 @@ router.post('/login', async (req, res) => {
 
     if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
+    if (user.googleId && !user.password) {
+      return res.status(400).json({ message: "This account uses Google Sign-In." });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role, name: user.name }, // ✅ name added
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -77,7 +74,6 @@ router.post('/login', async (req, res) => {
 });
 
 // ─── Google OAuth Routes ──────────────────────────────────
-// ✅ These were accidentally pasted INSIDE the login route before
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
@@ -86,11 +82,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     const token = jwt.sign(
-      { 
-        id: req.user._id,
-        name: req.user.name,  // ✅ add name
-        role: req.user.role   // ✅ add role
-      },
+      { id: req.user._id, name: req.user.name, role: req.user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -110,6 +102,35 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// ─── Me Route ─────────────────────────────────────────────
+router.get('/me', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── Refresh Token ────────────────────────────────────────
+router.get('/refresh-token', verifyToken, async (req, res) => { // ✅ new
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const token = jwt.sign(
+      { id: user._id, name: user.name, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(200).json({ token, role: user.role, name: user.name });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── Get All Users (admin only) ───────────────────────────
 router.get('/users', isAdmin, async (req, res) => {
   try {
     const users = await User.find().select('-password').sort({ createdAt: -1 });
@@ -119,10 +140,30 @@ router.get('/users', isAdmin, async (req, res) => {
   }
 });
 
-router.get('/me', verifyToken, async (req, res) => {
+// ─── Update Role (admin only) ─────────────────────────────
+router.patch('/update-role/:userId', isAdmin, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.status(200).json(user);
+    const { role } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { role },
+      { new: true }
+    ).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json({ message: `Role updated to ${role}`, user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── Make Admin (admin only) ──────────────────────────────
+router.patch('/make-admin/:userId', isAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.role = 'admin';
+    await user.save();
+    res.status(200).json({ message: `${user.name} is now an admin` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
