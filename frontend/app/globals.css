@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import "tailwindcss";
+
 /* ===========================
    global.css — Base styles & CSS Variables
    =========================== */
 
-   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-/* Changed for checking !!!*/
    :root {
      --color-dark: #0A192F;
      --color-primary: #112240;
@@ -26,11 +27,10 @@
    
    *, *::before, *::after {
      box-sizing: border-box;
-     margin: 0;
-     padding: 0;
    }
    
    body {
+     margin: 0;
      font-family: var(--font-family);
      background-color: var(--color-white);
      color: var(--color-dark);
@@ -50,13 +50,9 @@
    
    button {
      cursor: pointer;
-     border: none;
-     outline: none;
      font-family: var(--font-family);
    }
    
    select, input {
      font-family: var(--font-family);
-     outline: none;
-     border: none;
    }

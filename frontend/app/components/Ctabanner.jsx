@@ -1,8 +1,14 @@
 'use client';
+<<<<<<< HEAD
+=======
+import React from 'react';
+import Link from 'next/link';
+>>>>>>> 2935a82c9a520264b62e9f828eacac26e8bf9e1e
 import '../component-styles/Ctabanner.css';
 
 const arenas = [
   {
+<<<<<<< HEAD
     id: 1,
     name: 'Grand Central Pitch',
     price: 45,
@@ -25,11 +31,24 @@ const arenas = [
     location: 'West End Precinct',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBqKiFW_xsCewhJGqWOhAsvppp8hfpmOzBbUWNbrP_HlmV13KQasITk7JnuJXqOmniT6kCXAS1KM3wkod-OZ76qHBpPGI74ObBZCjUrbStEctxVeFzxgE_umf4gBe76OWm9ZTukHh2naBMplSedFVLgk_VuKC7ejqWb9SnlJ1Xh3Z4b0zZ1pmWTWgq8vTH-so14qSOvoPpk4LX1xCrxQwOU21Wux-EhdzZ2YVdSZsENhYYpODe6id-DN5rrxcMi8jiCG_Cy-FsmjZ0',
     verified: true,
+=======
+    label: 'Explore Facilities',
+    alt: 'Explore',
+    href: '/booking',
+    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDTzF6-AndGeFFp1BFKRAjYZMgSrEK-n0p8CpMSBR7adC2_fUdsW0MVWfq3EgQJkNPa35WtWS3wUtFr-cVsRdEZM0TBvcP4onJnRE4NsEYrjgHNGzHWJoS8AOAgtGgdCsQeeyU2uW4yXA38IWujct4lBf_HyalVbh5L0uQ8-KmZuJ1qZ1gUaMv3IJrEUEWQZA1ShJ22ZW6iwL5qRiuEhcRZm37vGuuW2AqWzEpaNdc7kfladdLA3MO8mytxXmRF2e29TxRdeUEVXN0',
+  },
+  {
+    label: 'List Your Property',
+    alt: 'List',
+    href: '#', // You can change this later
+    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAE4iVcupSDXW0yha63kVzx9mJLunmr43ddljgVyiyIYcwQ63HNGGEeBFDhUxcL9dck6OKDPcYek-lvcKibDXadIOrTwtz6b4fMedxzXMVBGHMTkx11yUlxmS-vC93PsEZCTHINq1GyTeHR5yjUKg18XQ-oRUngXATtwY-veis2Vlk4-ythhZCJgQRQQbM-dxStRE803SP7c7nntbcr7awnvzEEXRT_O-3YBcbt_oWD07rCfzXtrR3CkZdmZ9-kOXX64SDYLRpL8Hs',
+>>>>>>> 2935a82c9a520264b62e9f828eacac26e8bf9e1e
   },
 ];
 
 export default function Ctabanner() {
   return (
+<<<<<<< HEAD
     <section className="arenas-section">
       <div className="arenas-container">
 
@@ -94,6 +113,18 @@ export default function Ctabanner() {
           ))}
         </div>
 
+=======
+    <section className="cta-banner" data-purpose="primary-actions">
+      <div className="cta-grid">
+        {ctas.map((cta, index) => (
+          <Link key={index} href={cta.href} className="cta-card">
+            <div className="cta-bg-wrap">
+              <img src={cta.img} alt={cta.alt} className="cta-bg-img" />
+            </div>
+            <div className="cta-btn">{cta.label}</div>
+          </Link>
+        ))}
+>>>>>>> 2935a82c9a520264b62e9f828eacac26e8bf9e1e
       </div>
     </section>
   );
