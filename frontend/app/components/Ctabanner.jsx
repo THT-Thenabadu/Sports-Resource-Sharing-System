@@ -1,14 +1,10 @@
 'use client';
-<<<<<<< HEAD
-=======
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
->>>>>>> 2935a82c9a520264b62e9f828eacac26e8bf9e1e
 import '../component-styles/Ctabanner.css';
 
 const arenas = [
   {
-<<<<<<< HEAD
     id: 1,
     name: 'Grand Central Pitch',
     price: 45,
@@ -31,7 +27,11 @@ const arenas = [
     location: 'West End Precinct',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBqKiFW_xsCewhJGqWOhAsvppp8hfpmOzBbUWNbrP_HlmV13KQasITk7JnuJXqOmniT6kCXAS1KM3wkod-OZ76qHBpPGI74ObBZCjUrbStEctxVeFzxgE_umf4gBe76OWm9ZTukHh2naBMplSedFVLgk_VuKC7ejqWb9SnlJ1Xh3Z4b0zZ1pmWTWgq8vTH-so14qSOvoPpk4LX1xCrxQwOU21Wux-EhdzZ2YVdSZsENhYYpODe6id-DN5rrxcMi8jiCG_Cy-FsmjZ0',
     verified: true,
-=======
+  },
+];
+
+const ctas = [
+  {
     label: 'Explore Facilities',
     alt: 'Explore',
     href: '/booking',
@@ -40,92 +40,85 @@ const arenas = [
   {
     label: 'List Your Property',
     alt: 'List',
-    href: '#', // You can change this later
+    href: '#',
     img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAE4iVcupSDXW0yha63kVzx9mJLunmr43ddljgVyiyIYcwQ63HNGGEeBFDhUxcL9dck6OKDPcYek-lvcKibDXadIOrTwtz6b4fMedxzXMVBGHMTkx11yUlxmS-vC93PsEZCTHINq1GyTeHR5yjUKg18XQ-oRUngXATtwY-veis2Vlk4-ythhZCJgQRQQbM-dxStRE803SP7c7nntbcr7awnvzEEXRT_O-3YBcbt_oWD07rCfzXtrR3CkZdmZ9-kOXX64SDYLRpL8Hs',
->>>>>>> 2935a82c9a520264b62e9f828eacac26e8bf9e1e
   },
 ];
 
 export default function Ctabanner() {
   return (
-<<<<<<< HEAD
-    <section className="arenas-section">
-      <div className="arenas-container">
+    <>
+      {/* ─── Arena Cards Section ─────────────────────── */}
+      <section className="arenas-section">
+        <div className="arenas-container">
+          <div className="arenas-header">
+            <h2 className="arenas-title">Sports Properties</h2>
+            <button className="arenas-view-all">
+              View All Arenas
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
 
-        {/* Section Header */}
-        <div className="arenas-header">
-          <h2 className="arenas-title">Sports Properties</h2>
-          <button className="arenas-view-all">
-            View All Arenas
-            <span className="material-symbols-outlined">arrow_forward</span>
-          </button>
+          <div className="arenas-grid">
+            {arenas.map((arena) => (
+              <div key={arena.id} className="arena-card">
+                <div className="arena-image-wrapper">
+                  <img
+                    src={arena.image}
+                    alt={arena.name}
+                    className="arena-image"
+                  />
+                  {arena.verified && (
+                    <div className="arena-verified-badge">
+                      <span
+                        className="material-symbols-outlined arena-verified-icon"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        verified
+                      </span>
+                      <span className="arena-verified-text">Verified</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="arena-content">
+                  <div className="arena-info-row">
+                    <h3 className="arena-name">{arena.name}</h3>
+                    <div className="arena-price">
+                      ${arena.price}
+                      <span className="arena-price-unit">/hr</span>
+                    </div>
+                  </div>
+                  <div className="arena-location">
+                    <span className="material-symbols-outlined arena-location-icon">location_on</span>
+                    {arena.location}
+                  </div>
+                  <div className="arena-actions">
+                    <button className="arena-book-btn">Book Now</button>
+                    <button className="arena-fav-btn">
+                      <span className="material-symbols-outlined">favorite</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* Arena Cards Grid */}
-        <div className="arenas-grid">
-          {arenas.map((arena) => (
-            <div key={arena.id} className="arena-card">
-
-              {/* Image */}
-              <div className="arena-image-wrapper">
-                <img
-                  src={arena.image}
-                  alt={arena.name}
-                  className="arena-image"
-                />
-                {arena.verified && (
-                  <div className="arena-verified-badge">
-                    <span
-                      className="material-symbols-outlined arena-verified-icon"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      verified
-                    </span>
-                    <span className="arena-verified-text">Verified</span>
-                  </div>
-                )}
+      {/* ─── CTA Banner Section ───────────────────────── */}
+      <section className="cta-banner" data-purpose="primary-actions">
+        <div className="cta-grid">
+          {ctas.map((cta, index) => (
+            <Link key={index} href={cta.href} className="cta-card">
+              <div className="cta-bg-wrap">
+                <img src={cta.img} alt={cta.alt} className="cta-bg-img" />
               </div>
-
-              {/* Content */}
-              <div className="arena-content">
-                <div className="arena-info-row">
-                  <h3 className="arena-name">{arena.name}</h3>
-                  <div className="arena-price">
-                    ${arena.price}
-                    <span className="arena-price-unit">/hr</span>
-                  </div>
-                </div>
-
-                <div className="arena-location">
-                  <span className="material-symbols-outlined arena-location-icon">location_on</span>
-                  {arena.location}
-                </div>
-
-                <div className="arena-actions">
-                  <button className="arena-book-btn">Book Now</button>
-                  <button className="arena-fav-btn">
-                    <span className="material-symbols-outlined">favorite</span>
-                  </button>
-                </div>
-              </div>
-
-            </div>
+              <div className="cta-btn">{cta.label}</div>
+            </Link>
           ))}
         </div>
-
-=======
-    <section className="cta-banner" data-purpose="primary-actions">
-      <div className="cta-grid">
-        {ctas.map((cta, index) => (
-          <Link key={index} href={cta.href} className="cta-card">
-            <div className="cta-bg-wrap">
-              <img src={cta.img} alt={cta.alt} className="cta-bg-img" />
-            </div>
-            <div className="cta-btn">{cta.label}</div>
-          </Link>
-        ))}
->>>>>>> 2935a82c9a520264b62e9f828eacac26e8bf9e1e
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
