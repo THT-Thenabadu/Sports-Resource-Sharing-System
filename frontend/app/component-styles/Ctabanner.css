@@ -1,0 +1,246 @@
+/* ─── Section ─────────────────────────────────────────────── */
+.arenas-section {
+  padding: 96px 0;
+  background-color: #f8f9fa;
+}
+
+.arenas-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ─── Section Header ──────────────────────────────────────── */
+.arenas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 48px;
+}
+
+.arenas-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #001f3f;
+  letter-spacing: -0.02em;
+}
+
+.arenas-view-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #005eb2;
+  transition: gap 0.2s ease;
+  padding: 0;
+}
+
+.arenas-view-all:hover {
+  gap: 14px;
+}
+
+.arenas-view-all .material-symbols-outlined {
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+.arenas-view-all:hover .material-symbols-outlined {
+  transform: translateX(4px);
+}
+
+/* ─── Grid ────────────────────────────────────────────────── */
+.arenas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .arenas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .arenas-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ─── Arena Card ──────────────────────────────────────────── */
+.arena-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.5s ease, transform 0.3s ease;
+}
+
+.arena-card:hover {
+  box-shadow: 0 24px 48px rgba(0, 6, 19, 0.12);
+  transform: translateY(-2px);
+}
+
+/* ─── Image ───────────────────────────────────────────────── */
+.arena-image-wrapper {
+  position: relative;
+  height: 256px;
+  overflow: hidden;
+}
+
+.arena-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.arena-card:hover .arena-image {
+  transform: scale(1.1);
+}
+
+/* ─── Verified Badge ──────────────────────────────────────── */
+.arena-verified-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 6px 12px;
+  border-radius: 9999px;
+}
+
+.arena-verified-icon {
+  font-size: 16px;
+  color: #005eb2;
+}
+
+.arena-verified-text {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #000613;
+}
+
+/* ─── Card Content ────────────────────────────────────────── */
+.arena-content {
+  padding: 32px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── Info Row ────────────────────────────────────────────── */
+.arena-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.arena-name {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #001f3f;
+  line-height: 1.3;
+  flex: 1;
+  padding-right: 12px;
+}
+
+.arena-price {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #005eb2;
+  white-space: nowrap;
+}
+
+.arena-price-unit {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #43474e;
+}
+
+/* ─── Location ────────────────────────────────────────────── */
+.arena-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  color: #43474e;
+  margin-bottom: 24px;
+}
+
+.arena-location-icon {
+  font-size: 18px;
+  color: #43474e;
+}
+
+/* ─── Actions ─────────────────────────────────────────────── */
+.arena-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: auto;
+}
+
+.arena-book-btn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #000613 0%, #001f3f 100%);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.arena-book-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.arena-fav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background-color: #e7e8e9;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #001f3f;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.arena-fav-btn:hover {
+  background-color: #001f3f;
+  color: #ffffff;
+}
+
+.arena-fav-btn .material-symbols-outlined {
+  font-size: 20px;
+}

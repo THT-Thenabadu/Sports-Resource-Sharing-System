@@ -1,0 +1,142 @@
+/* ─── Section ─────────────────────────────────────────────── */
+.owner-cta-section {
+    position: relative;
+    padding: 128px 0;
+    overflow: hidden;
+    background-color: #0a192f;
+  }
+  
+  /* ─── Background ──────────────────────────────────────────── */
+  .owner-cta-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  
+  .owner-cta-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.3;
+  }
+  
+  .owner-cta-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      #0a192f 0%,
+      rgba(10, 25, 47, 0.85) 50%,
+      transparent 100%
+    );
+  }
+  
+  /* ─── Container ───────────────────────────────────────────── */
+  .owner-cta-container {
+    position: relative;
+    z-index: 10;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  
+  /* ─── Content ─────────────────────────────────────────────── */
+  .owner-cta-content {
+    max-width: 600px;
+  }
+  
+  /* ─── Title ───────────────────────────────────────────────── */
+  .owner-cta-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  
+  @media (min-width: 768px) {
+    .owner-cta-title {
+      font-size: 3.75rem;
+    }
+  }
+  
+  /* ─── Description ─────────────────────────────────────────── */
+  .owner-cta-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    color: #9ca3af;
+    line-height: 1.75;
+    margin-bottom: 40px;
+    max-width: 520px;
+  }
+  
+  /* ─── Actions ─────────────────────────────────────────────── */
+  .owner-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  /* ─── Primary Button ──────────────────────────────────────── */
+  .owner-cta-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    color: #0a192f;
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.2s ease, transform 0.15s ease;
+  }
+  
+  .owner-cta-btn-primary:hover {
+    background-color: #f3f4f6;
+    transform: translateY(-2px);
+  }
+  
+  /* ─── Secondary Button ────────────────────────────────────── */
+  .owner-cta-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: #ffffff;
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+  }
+  
+  .owner-cta-btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  /* ─── Responsive ──────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .owner-cta-section {
+      padding: 80px 0;
+    }
+  
+    .owner-cta-title {
+      font-size: 2.25rem;
+    }
+  
+    .owner-cta-btn-primary,
+    .owner-cta-btn-secondary {
+      width: 100%;
+      justify-content: center;
+    }
+  }

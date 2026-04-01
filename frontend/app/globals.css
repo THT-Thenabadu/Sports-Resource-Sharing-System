@@ -1,26 +1,62 @@
-@import "tailwindcss";
+/* ===========================
+   global.css — Base styles & CSS Variables
+   =========================== */
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+/* Changed for checking !!!*/
+   :root {
+     --color-dark: #0A192F;
+     --color-primary: #112240;
+     --color-accent: #64FFDA;
+     --color-white: #ffffff;
+     --color-gray-100: #f3f4f6;
+     --color-gray-200: #e5e7eb;
+     --color-gray-400: #9ca3af;
+     --color-gray-500: #6b7280;
+     --color-gray-600: #4b5563;
+     --color-blue-50: #eff6ff;
+     --font-family: 'Inter', sans-serif;
+     --shadow-sm: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1);
+     --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1);
+     --radius-lg: 1rem;
+     --radius-xl: 1.5rem;
+     --radius-2xl: 2rem;
+     --transition: all 0.3s ease;
+   }
+   
+   *, *::before, *::after {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+   }
+   
+   body {
+     font-family: var(--font-family);
+     background-color: var(--color-white);
+     color: var(--color-dark);
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+   }
+   
+   a {
+     text-decoration: none;
+     color: inherit;
+   }
+   
+   img {
+     display: block;
+     max-width: 100%;
+   }
+   
+   button {
+     cursor: pointer;
+     border: none;
+     outline: none;
+     font-family: var(--font-family);
+   }
+   
+   select, input {
+     font-family: var(--font-family);
+     outline: none;
+     border: none;
+   }
