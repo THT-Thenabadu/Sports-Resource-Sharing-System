@@ -60,3 +60,24 @@
      outline: none;
      border: none;
    }
+
+   .step-input--error {
+    border-color: #ba1a1a !important;
+    background: #fff8f7;
+  }
+  
+  .step-error {
+    color: #ba1a1a;
+    font-size: 11px;
+    font-family: 'Manrope', sans-serif;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .step-error::before {
+    content: 'error';
+    font-family: 'Material Symbols Outlined';
+    font-size: 13px;
+  }

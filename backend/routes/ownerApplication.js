@@ -26,15 +26,40 @@ router.post('/apply', verifyToken, async (req, res) => {
       propertyCount, bio
     } = req.body;
 
-    // Check if already applied
+    // ✅ Check if already applied
     const existing = await OwnerApplication.findOne({ user: req.user.id });
+
     if (existing) {
+      // ✅ Allow reapply only if previously rejected
+      if (existing.status === 'rejected') {
+        existing.businessName = businessName;
+        existing.businessType = businessType;
+        existing.phone = phone;
+        existing.idNumber = idNumber;
+        existing.country = country;
+        existing.province = province;
+        existing.address = address;
+        existing.propertyCount = propertyCount;
+        existing.bio = bio;
+        existing.status = 'pending'; // ✅ reset back to pending
+        await existing.save();
+
+        return res.status(200).json({
+          message: 'Application resubmitted successfully! Under review.',
+          application: existing
+        });
+      }
+
+      // Still pending or approved — block reapply
       return res.status(400).json({
-        message: 'You have already submitted an application.',
+        message: existing.status === 'pending'
+          ? 'You already have a pending application.'
+          : 'You are already an approved owner.',
         status: existing.status
       });
     }
 
+    // Fresh application
     const application = new OwnerApplication({
       user: req.user.id,
       businessName, businessType, phone, idNumber,
