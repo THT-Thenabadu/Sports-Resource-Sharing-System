@@ -16,7 +16,7 @@ export default function AdminSidebar() {
             {/* Brand */}
             <div className="sidebar-brand">
                 <div className="sidebar-logo">
-                    <span className="material-symbols-outlined">sports_score</span>
+                    <span style={{ fontSize: '24px', fontWeight: '900', color: '#fff', fontStyle: 'italic' }}>S</span>
                 </div>
                 <div>
                     <h1 className="sidebar-title">Sportek</h1>
@@ -32,7 +32,6 @@ export default function AdminSidebar() {
                         href={item.href}
                         className={`sidebar-link ${item.active ? 'sidebar-link--active' : ''}`}
                     >
-                        <span className="material-symbols-outlined">{item.icon}</span>
                         <span>{item.label}</span>
                     </Link>
                 ))}

@@ -19,6 +19,7 @@ export default function AuthCallback() {
 
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify({
+        id: payload.id,
         name: payload.name,
         role: payload.role
       }));
@@ -26,10 +27,14 @@ export default function AuthCallback() {
       // ✅ Fire event so navbar updates
       window.dispatchEvent(new Event('userUpdated'));
 
-      // ✅ Use window.location instead of router.push
-      // router.push does a soft nav and navbar doesn't re-mount
-      // window.location does a full reload so navbar reads localStorage fresh
-      window.location.href = '/';
+      // Redirect by role after OAuth login
+      if (payload.role === 'admin') {
+        window.location.href = '/admin';
+      } else if (payload.role === 'owner') {
+        window.location.href = '/dashboard/owner';
+      } else {
+        window.location.href = '/';
+      }
 
     } catch (err) {
       console.error('Token decode error:', err);

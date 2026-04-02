@@ -38,6 +38,7 @@ export default function LoginForm() {
       if (response.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify({
+          id: data.id,
           name: data.name,
           role: data.role
         }));
@@ -45,7 +46,9 @@ export default function LoginForm() {
         window.dispatchEvent(new Event('userUpdated'));
 
         // ✅ Redirect based on role
-        if (data.role === 'admin') {
+        if (data.dashboard === 'security') {
+          window.location.href = '/dashboard/security';
+        } else if (data.role === 'admin') {
           window.location.href = '/admin';
         } else if (data.role === 'owner') {
           window.location.href = '/dashboard/owner';
@@ -73,14 +76,13 @@ export default function LoginForm() {
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Email Address</label>
+            <label className="form-label">Email or Security Username</label>
             <div className="input-wrapper">
-              <span className="material-symbols-outlined input-icon">mail</span>
               <input
                 className="form-input"
-                type="email"
+                type="text"
                 name="email"
-                placeholder="name@example.com"
+                placeholder="name@example.com or sec_username"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -91,7 +93,6 @@ export default function LoginForm() {
           <div className="form-group">
             <label className="form-label">Password</label>
             <div className="input-wrapper">
-              <span className="material-symbols-outlined input-icon">lock</span>
               <input
                 className="form-input form-input--password"
                 type={showPassword ? "text" : "password"}

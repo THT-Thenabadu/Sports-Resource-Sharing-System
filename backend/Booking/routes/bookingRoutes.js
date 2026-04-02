@@ -3,6 +3,7 @@ const router = express.Router();
 const {
     getAvailableSlots,
     createBooking,
+    createBatchBooking,
     getAllBookings,
     getBookingById,
     updateBooking,
@@ -13,6 +14,7 @@ const {
 // GET    /api/bookings/slots/:facilityId/:date  — Get available slots
 // GET    /api/bookings/:id                      — Get single booking
 // POST   /api/bookings                          — Create a booking
+// POST   /api/bookings/batch                    — Create a batch of bookings
 // PUT    /api/bookings/:id                      — Update a booking
 // DELETE /api/bookings/:id                      — Cancel a booking
 
@@ -22,6 +24,7 @@ router.get('/slots/:facilityId/:date', getAvailableSlots);
 
 router.get('/', getAllBookings);
 router.get('/:id', getBookingById);
+router.post('/batch', createBatchBooking);
 router.post('/', createBooking);
 router.put('/:id', updateBooking);
 router.delete('/:id', cancelBooking);

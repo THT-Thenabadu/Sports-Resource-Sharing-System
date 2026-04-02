@@ -51,6 +51,15 @@ export default function UsersTable() {
     });
     if (res.ok) {
       setApplications(prev => prev.map(a => a._id === id ? { ...a, status: 'approved' } : a));
+      
+      // Find the application to get the user ID
+      const app = applications.find(a => a._id === id);
+      if (app && app.user && app.user._id) {
+        // Automatically update the user's role in the all users list
+        setUsers(prev => prev.map(u => 
+          u._id === app.user._id ? { ...u, role: 'owner' } : u
+        ));
+      }
     }
   };
 
@@ -67,6 +76,9 @@ export default function UsersTable() {
 
   const toggleRole = async (id, currentRole) => {
     const newRole = currentRole === 'owner' ? 'customer' : 'owner';
+    const confirmed = window.confirm(`Are you sure you want to change this user's role to ${newRole}?`);
+    if (!confirmed) return;
+    
     try {
       const token = localStorage.getItem('token');
       await fetch(`http://localhost:8000/api/auth/update-role/${id}`, {
@@ -150,15 +162,14 @@ export default function UsersTable() {
                     <div className="user-actions">
                       {user.role !== 'admin' && (
                         <button
-                          className="action-btn action-btn--primary"
-                          title="Toggle Role"
+                          className="action-btn-solid role-btn"
                           onClick={() => toggleRole(user._id, user.role)}
                         >
-                          <span className="material-symbols-outlined">swap_horiz</span>
+                          Change Role
                         </button>
                       )}
-                      <button className="action-btn action-btn--secondary" title="More Options">
-                        <span className="material-symbols-outlined">more_vert</span>
+                      <button className="action-btn-solid manage-btn">
+                        Manage
                       </button>
                     </div>
                   </td>
@@ -218,20 +229,16 @@ export default function UsersTable() {
                       {app.status === 'pending' && (
                         <div className="user-actions">
                           <button
-                            className="action-btn"
-                            style={{ color: '#005eb2' }}
-                            title="Approve"
+                            className="action-btn-solid success-btn"
                             onClick={() => approveApplication(app._id)}
                           >
-                            <span className="material-symbols-outlined">check_circle</span>
+                            Approve
                           </button>
                           <button
-                            className="action-btn"
-                            style={{ color: '#ba1a1a' }}
-                            title="Reject"
+                            className="action-btn-solid danger-btn"
                             onClick={() => rejectApplication(app._id)}
                           >
-                            <span className="material-symbols-outlined">cancel</span>
+                            Reject
                           </button>
                         </div>
                       )}

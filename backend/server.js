@@ -16,7 +16,7 @@ const app = express();
 
 // ─── Middleware ───────────────────────────────────────────
 app.use(cors({
-  origin: 'http://localhost:3000', // ✅ only one cors call
+  origin: ['http://localhost:3000', 'http://localhost:3001'], 
   credentials: true
 }));
 app.use(express.json());
@@ -46,11 +46,15 @@ mongoose.connect(process.env.MONGODB_URI) // ✅ only one mongoose.connect
     await createSuperAdmin();
     
     const PORT = process.env.PORT || 8000;
-    app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
+    app.listen(PORT, () => console.log(` Backend running on port ${PORT}`));
   })
-  .catch(err => console.log("❌ DB Error:", err));
+  .catch(err => console.log(" DB Error:", err));
 
   const ownerApplicationRoutes = require('./routes/ownerApplication');
+  const bookingRoutes = require('./Booking/routes/bookingRoutes');
+  const securityRoutes = require('./Security/routes/securityRoutes');
 
 // add this with the other routes
 app.use('/api/owner-application', ownerApplicationRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/security', securityRoutes);

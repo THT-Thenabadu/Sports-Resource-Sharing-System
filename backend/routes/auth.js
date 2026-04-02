@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('../models/User');
 const isAdmin = require('../middleware/isAdmin');
+const { ensureOwnerSecurityCredentials } = require('../utils/securityCredentials');
 
 // ─── Register Route ───────────────────────────────────────
 router.post('/register', async (req, res) => {
@@ -40,12 +41,23 @@ router.post('/login', async (req, res) => {
     }
 
     const raw = String(candidates[0]).trim();
+    const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const looksLikeEmail = raw.includes('@');
-    const user = looksLikeEmail
-      ? await User.findOne({ email: raw })
-      : await User.findOne({
-          name: { $regex: new RegExp(`^${raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+
+    let user = null;
+    let usedSecurityCredential = false;
+    if (looksLikeEmail) {
+      user = await User.findOne({ email: raw });
+    } else {
+      user = await User.findOne({ securityUsername: raw });
+      if (user) {
+        usedSecurityCredential = true;
+      } else {
+        user = await User.findOne({
+          name: { $regex: new RegExp(`^${escaped}$`, 'i') },
         });
+      }
+    }
 
     if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
@@ -53,7 +65,15 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: "This account uses Google Sign-In." });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const passwordToCompare = usedSecurityCredential
+      ? user.securityPasswordHash
+      : user.password;
+
+    if (!passwordToCompare) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    const isMatch = await bcrypt.compare(password, passwordToCompare);
     if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
 
     const token = jwt.sign(
@@ -65,8 +85,10 @@ router.post('/login', async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
+      id: user._id,
       role: user.role,
-      name: user.name
+      name: user.name,
+      dashboard: usedSecurityCredential ? 'security' : undefined
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -105,8 +127,70 @@ const verifyToken = (req, res, next) => {
 // ─── Me Route ─────────────────────────────────────────────
 router.get('/me', verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-password -securityPasswordHash');
     res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── Update Owner Security Credentials ─────────────────────
+router.patch('/security-credentials', verifyToken, async (req, res) => {
+  try {
+    const { securityUsername, securityPassword } = req.body;
+
+    if (!securityUsername || !securityPassword) {
+      return res.status(400).json({ message: 'Username and password are required.' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (user.role !== 'owner') {
+      return res.status(403).json({ message: 'Only owners can update security credentials.' });
+    }
+
+    const normalizedUsername = String(securityUsername).trim().toLowerCase();
+    if (normalizedUsername.length < 4) {
+      return res.status(400).json({ message: 'Security username must be at least 4 characters.' });
+    }
+    if (normalizedUsername.includes('@')) {
+      return res.status(400).json({ message: 'Security username cannot be an email address.' });
+    }
+    if (!/^[a-z0-9_]+$/.test(normalizedUsername)) {
+      return res.status(400).json({ message: 'Use only lowercase letters, numbers, and underscore.' });
+    }
+    if (normalizedUsername === String(user.email || '').toLowerCase()) {
+      return res.status(400).json({ message: 'Security username cannot match your owner login email.' });
+    }
+
+    const existingUser = await User.findOne({
+      securityUsername: normalizedUsername,
+      _id: { $ne: user._id }
+    });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Security username already taken.' });
+    }
+
+    const ownerLoginPasswordMatch = user.password
+      ? await bcrypt.compare(securityPassword, user.password)
+      : false;
+    if (ownerLoginPasswordMatch) {
+      return res.status(400).json({
+        message: 'Security password must be different from your owner dashboard login password.'
+      });
+    }
+
+    user.securityUsername = normalizedUsername;
+    user.securityPasswordHash = await bcrypt.hash(securityPassword, 10);
+    user.securityPasswordPlain = securityPassword;
+    user.securityCredentialsCreatedAt = new Date();
+    await user.save();
+
+    res.status(200).json({
+      message: 'Security credentials updated successfully.',
+      securityUsername: user.securityUsername,
+      securityPasswordPlain: user.securityPasswordPlain
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -115,7 +199,7 @@ router.get('/me', verifyToken, async (req, res) => {
 // ─── Refresh Token ────────────────────────────────────────
 router.get('/refresh-token', verifyToken, async (req, res) => { // ✅ new
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-password -securityPasswordHash');
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const token = jwt.sign(
@@ -124,7 +208,7 @@ router.get('/refresh-token', verifyToken, async (req, res) => { // ✅ new
       { expiresIn: '7d' }
     );
 
-    res.status(200).json({ token, role: user.role, name: user.name });
+    res.status(200).json({ token, id: user._id, role: user.role, name: user.name });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -133,7 +217,9 @@ router.get('/refresh-token', verifyToken, async (req, res) => { // ✅ new
 // ─── Get All Users (admin only) ───────────────────────────
 router.get('/users', isAdmin, async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const users = await User.find()
+      .select('-password -securityPasswordHash -securityPasswordPlain')
+      .sort({ createdAt: -1 });
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -144,13 +230,18 @@ router.get('/users', isAdmin, async (req, res) => {
 router.patch('/update-role/:userId', isAdmin, async (req, res) => {
   try {
     const { role } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.userId,
-      { role },
-      { new: true }
-    ).select('-password');
+    const user = await User.findById(req.params.userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.status(200).json({ message: `Role updated to ${role}`, user });
+
+    user.role = role;
+    if (role === 'owner') {
+      await ensureOwnerSecurityCredentials(user);
+    } else {
+      await user.save();
+    }
+
+    const safeUser = await User.findById(req.params.userId).select('-password -securityPasswordHash');
+    res.status(200).json({ message: `Role updated to ${role}`, user: safeUser });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

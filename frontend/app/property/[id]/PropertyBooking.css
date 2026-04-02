@@ -1,0 +1,265 @@
+.booking-page-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: 'Lexend', sans-serif;
+}
+
+.back-button {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: #005eb2;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.property-header {
+  margin-bottom: 30px;
+}
+
+.property-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #001f3f;
+  margin-bottom: 8px;
+}
+
+.property-type {
+  font-size: 1rem;
+  color: #666;
+  text-transform: capitalize;
+}
+
+.booking-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eaeaea;
+}
+
+.booking-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #001f3f;
+}
+
+.date-picker-container {
+  margin-bottom: 24px;
+}
+
+.date-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+.date-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.slot-btn {
+  padding: 12px 8px;
+  border-radius: 8px;
+  border: 1px solid #005eb2;
+  background: transparent;
+  color: #005eb2;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slot-btn:hover:not(:disabled) {
+  background: #e6f0fa;
+}
+
+.slot-btn-selected {
+  background: #005eb2;
+  color: #fff;
+  border-color: #005eb2;
+}
+
+.slot-btn-selected:hover:not(:disabled) {
+  background: #005eb2;
+}
+
+.slot-btn-disabled {
+  border-color: #ddd;
+  color: #aaa;
+  background: #f9f9f9;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.booking-summary {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.booking-summary h3 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: #001f3f;
+}
+
+.confirm-book-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  background: #001f3f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.confirm-book-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.confirm-book-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+.loading-text, .error-text, .no-slots {
+  color: #666;
+  font-weight: 500;
+}
+
+/* Digital Ticket Styles */
+.digital-ticket-wrapper {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.digital-ticket-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.1);
+  position: relative;
+  border: 1px solid #eee;
+  padding-bottom: 30px;
+}
+
+.ticket-header-strip {
+  height: 12px;
+  background: linear-gradient(90deg, #001f3f, #005eb2);
+}
+
+.ticket-title {
+  text-align: center;
+  color: #001f3f;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.ticket-qr-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.qr-box {
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
+}
+
+.ticket-access-code {
+  margin-top: 16px;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #005eb2;
+  font-family: monospace;
+}
+
+.ticket-instruction {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.ticket-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 0 32px;
+  margin-top: 24px;
+  border-top: 2px dashed #eee;
+  padding-top: 24px;
+}
+
+.ticket-detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: #222;
+  font-weight: 700;
+}
+
+.ticket-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.done-btn {
+  flex: 1;
+  padding: 14px;
+  background: white;
+  color: #001f3f;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.done-btn:hover {
+  background: #f8f9fa;
+  border-color: #001f3f;
+}

@@ -40,10 +40,17 @@ const bookingSchema = new mongoose.Schema({
         type: String,  // Format: "HH:MM" (24hr), e.g. "10:00"
         required: [true, 'End time is required']
     },
+    guestCount: {
+        type: Number,
+        default: 0
+    },
     status: {
         type: String,
-        enum: ['confirmed', 'cancelled'],
-        default: 'confirmed'
+        enum: ['pending', 'confirmed', 'checkedin', 'checkedout', 'cancelled'],
+        default: 'pending'
+    },
+    accessCode: {
+        type: String
     }
 }, {
     timestamps: true

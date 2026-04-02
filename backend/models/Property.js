@@ -37,6 +37,11 @@ const propertySchema = new mongoose.Schema({
     enum: ['pending', 'active', 'inactive'],
     default: 'pending'
   },
+  availabilityState: {
+    type: String,
+    enum: ['available', 'not_available'],
+    default: 'available'
+  },
 
 }, { timestamps: true });
 

@@ -1,7 +1,9 @@
 'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import '../component-styles/Ctabanner.css';
 
-const arenas = [
+const fallbackArenas = [
   {
     id: 1,
     name: 'Grand Central Pitch',
@@ -29,6 +31,39 @@ const arenas = [
 ];
 
 export default function Ctabanner() {
+  const [arenas, setArenas] = useState(fallbackArenas);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/properties')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const mapped = data.slice(0, 6).map(p => {
+            const displayLocation = [p.city, p.address].filter(Boolean).join(' - ');
+            const imageUrl = p.images && p.images.length > 0
+              ? `http://localhost:8000${p.images[0]}`
+              : fallbackArenas[0].image; // default image fallback
+            return {
+              id: p._id,
+              name: p.title,
+              price: p.pricePerHour,
+              location: displayLocation || 'Location TBD',
+              image: imageUrl,
+              verified: true
+            };
+          });
+          setArenas(mapped);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch properties:", err);
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <section className="arenas-section">
       <div className="arenas-container">
@@ -83,7 +118,7 @@ export default function Ctabanner() {
                 </div>
 
                 <div className="arena-actions">
-                  <button className="arena-book-btn">Book Now</button>
+                  <button onClick={() => router.push(`/property/${arena.id}`)} className="arena-book-btn">Book Now</button>
                   <button className="arena-fav-btn">
                     <span className="material-symbols-outlined">favorite</span>
                   </button>

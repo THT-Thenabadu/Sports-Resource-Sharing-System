@@ -21,9 +21,9 @@ export default function ManageUsersPage() {
     }, []);
     
     return (
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', background: 'linear-gradient(180deg, #eef2f7 0%, #e9eef5 100%)', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
             <AdminSidebar />
-            <main style={{ marginLeft: '256px', minHeight: '100vh', flex: 1 }}>
+            <main style={{ marginLeft: '256px', flex: 1 }}>
                 <AdminTopBar />
                 <section style={{ padding: '32px 40px' }}>
                     <UserStatsCards />
