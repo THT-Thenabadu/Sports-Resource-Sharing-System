@@ -27,11 +27,19 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
         const token = localStorage.getItem('token');
         if (!token) {
             setError('You must be logged in to make a booking. Redirecting to login...');
-            setTimeout(() => router.push('/login'), 2000);
+
+            // Save the exact booking state before redirecting so we can restore it post-login!
+            sessionStorage.setItem('pendingBookingState', JSON.stringify({
+                facility,
+                date,
+                slot
+            }));
+
+            setTimeout(() => router.push('/login?returnUrl=/booking'), 2000);
         } else {
             setAuthToken(token);
         }
-    }, [router]);
+    }, [router, facility, date, slot]);
 
     // Convert "14:00" to "2:00 PM"
     function formatTime(time24: string): string {

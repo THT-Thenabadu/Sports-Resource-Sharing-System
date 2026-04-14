@@ -1,8 +1,8 @@
 'use client';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function AuthCallback() {
+function AuthCallbackClient() {
   const router = useRouter();
   const params = useSearchParams();
 
@@ -35,7 +35,15 @@ export default function AuthCallback() {
       console.error('Token decode error:', err);
       window.location.href = '/';
     }
-  }, []);
+  }, [params, router]);
 
   return <p>Logging you in...</p>;
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={<p>Logging you in...</p>}>
+      <AuthCallbackClient />
+    </Suspense>
+  );
 }

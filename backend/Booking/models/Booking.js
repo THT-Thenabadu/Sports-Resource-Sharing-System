@@ -21,7 +21,7 @@ const bookingSchema = new mongoose.Schema(
         // Renamed from bookingStatus for consistency
         status: {
             type: String,
-            enum: ['pending_payment', 'confirmed', 'expired', 'cancelled'],
+            enum: ['pending_payment', 'confirmed', 'expired', 'cancelled', 'blocked'],
             default: 'pending_payment',
         },
         paymentMethod: {
@@ -65,6 +65,10 @@ const bookingSchema = new mongoose.Schema(
         paymentRef: { type: String, required: false },
         paymentSettledAt: { type: Date, required: false },
         expiresAt: { type: Date, required: false },
+
+        // Change Requests
+        changeRequest: { type: String, enum: ['none', 'pending', 'resolved', 'rejected'], default: 'none' },
+        changeNote: { type: String, default: '' },
     },
     { timestamps: true }
 );

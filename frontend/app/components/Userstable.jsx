@@ -10,13 +10,27 @@ export default function UsersTable() {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          setLoading(false);
+          console.error('Authentication token not found.');
+          // Optionally set an error state here to show in the UI
+          return;
+        }
         const res = await fetch('http://localhost:8000/api/auth/users', {
           headers: { Authorization: `Bearer ${token}` }
         });
+
+        if (!res.ok) {
+          // Handle non-successful responses (like 403 Forbidden)
+          const errorData = await res.json().catch(() => ({ message: res.statusText }));
+          throw new Error(errorData.message || 'Failed to fetch users');
+        }
+
         const data = await res.json();
-        setUsers(data);
+        setUsers(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch users:', err);
+        setUsers([]); // Ensure users is an array on error to prevent .map crash
       } finally {
         setLoading(false);
       }
@@ -44,6 +58,8 @@ export default function UsersTable() {
   };
 
   if (loading) return <p style={{ fontFamily: 'Manrope', padding: '24px' }}>Loading users...</p>;
+
+  if (!users.length) return <p style={{ fontFamily: 'Manrope', padding: '24px' }}>No users found or you do not have permission to view them.</p>;
 
   return (
     <div className="users-table-wrapper">

@@ -58,6 +58,7 @@ export default function RegisterForm() {
     email: "",
     password: "",
     confirmPassword: "",
+    institution: "",
   });
 
   const handleChange = (e) => {
@@ -78,6 +79,7 @@ export default function RegisterForm() {
       email: formData.email,
       password: formData.password,
       role: "customer",
+      institution: formData.institution || "None",
     };
 
     try {
@@ -123,6 +125,18 @@ export default function RegisterForm() {
               value={formData.fullName}
               onChange={handleChange}
               required
+            />
+          </FormField>
+
+          {/* Institution */}
+          <FormField label="Institution (Optional)">
+            <input
+              className="form-input"
+              type="text"
+              name="institution"
+              placeholder="e.g. University Name, School, Company"
+              value={formData.institution || ""}
+              onChange={handleChange}
             />
           </FormField>
 

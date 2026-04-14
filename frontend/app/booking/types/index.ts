@@ -51,7 +51,7 @@ export interface Facility {
 export interface TimeSlot {
     startTime: string;  // "09:00"
     endTime: string;    // "10:00"
-    status: 'available' | 'confirmed' | 'in_progress';
+    status: 'available' | 'confirmed' | 'in_progress' | 'blocked';
 }
 
 export interface SlotResponse {
@@ -85,6 +85,8 @@ export interface Booking {
     holdExpiresAt: string;
     createdAt: string;
     updatedAt: string;
+    changeRequest?: 'none' | 'pending' | 'resolved' | 'rejected';
+    changeNote?: string;
 }
 
 export interface CreateBookingData {

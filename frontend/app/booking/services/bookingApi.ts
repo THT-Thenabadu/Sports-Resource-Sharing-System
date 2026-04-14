@@ -120,6 +120,22 @@ export async function cancelBooking(id: string, token: string): Promise<{ messag
     return res.json();
 }
 
+export async function requestBookingChange(id: string, note: string, token: string): Promise<Booking> {
+    const res = await fetch(`${API_BASE}/bookings/${id}/request-change`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ note })
+    });
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to request change');
+    }
+    return res.json();
+}
+
 // --- New Payment Endpoints ---
 
 export async function payBookingByCard(id: string, token: string) {
