@@ -2,7 +2,7 @@ const Booking = require('../models/Booking');
 const Facility = require('../models/Facility');
 
 const PENDING_PAYMENT_WINDOW_MINUTES = 10;
-const HOLD_MINUTES = 10;
+const HOLD_MINUTES = 5;
 
 
 // ─── Helper: Generate all possible time slots for a facility on a given day ───
@@ -45,13 +45,12 @@ async function expireStalePendingBookings() {
     await Booking.updateMany(
         {
             status: 'pending_payment',
-            paymentStatus: 'pending',
-            expiresAt: { $lte: now }
+            holdExpiresAt: { $lte: now }
         },
         {
             $set: {
                 status: 'expired',
-                paymentStatus: 'failed'
+                paymentStatus: 'expired'
             }
         }
     );
@@ -88,19 +87,21 @@ const getAvailableSlots = async (req, res) => {
         const existingBookings = await Booking.find({
             facilityId,
             date: { $gte: bookingDate, $lt: nextDay },
-            status: { $in: ['confirmed', 'pending_payment'] }
+            status: { $in: ['confirmed', 'pending_payment', 'blocked'] }
         });
 
         const now = new Date();
         const slotsWithStatus = allSlots.map(slot => {
             const conflictingBooking = existingBookings.find(
-                booking => booking.startTime === slot.startTime && booking.endTime === slot.endTime
+                booking => booking.startTime < slot.endTime && booking.endTime > slot.startTime
             );
 
             let status = 'available';
             if (conflictingBooking) {
                 if (conflictingBooking.status === 'confirmed') {
                     status = 'confirmed';
+                } else if (conflictingBooking.status === 'blocked') {
+                    status = 'blocked';
                 } else if (conflictingBooking.status === 'pending_payment' && new Date(conflictingBooking.holdExpiresAt) > now) {
                     status = 'in_progress'; // This is a temporary hold
                 }
@@ -159,7 +160,7 @@ const createBooking = async (req, res) => {
         const overlappingBooking = await Booking.findOne({
             facilityId,
             date: { $gte: bookingDate, $lt: nextDay },
-            status: { $in: ['confirmed', 'pending_payment'] },
+            status: { $in: ['confirmed', 'pending_payment', 'blocked'] },
             startTime: { $lt: endTime },
             endTime: { $gt: startTime },
             holdExpiresAt: { $gt: new Date() } // Only consider pending bookings that haven't expired
@@ -333,11 +334,12 @@ const getBookingById = async (req, res) => {
 // ─── PUT /api/bookings/:id — Update a booking ───
 const updateBooking = async (req, res) => {
     try {
-        // Only allow updating status (e.g., cancellation)
-        const { status } = req.body;
+        const isAdminOrOwner = req.user && (req.user.role === 'admin' || req.user.role === 'owner');
+        if (!isAdminOrOwner) return res.status(403).json({ message: 'Forbidden: Admins only' });
+
         const booking = await Booking.findByIdAndUpdate(
             req.params.id,
-            { status },
+            { ...req.body }, // Allow admin to update any field
             { new: true, runValidators: true }
         );
         if (!booking) {
@@ -346,6 +348,23 @@ const updateBooking = async (req, res) => {
         res.json(booking);
     } catch (error) {
         res.status(400).json({ message: 'Update failed', error: error.message });
+    }
+};
+
+const requestChange = async (req, res) => {
+    try {
+        const { note } = req.body;
+        const booking = await Booking.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user._id.toString() },
+            { changeRequest: 'pending', changeNote: note },
+            { new: true, runValidators: true }
+        );
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found or not authorized' });
+        }
+        res.json(booking);
+    } catch (error) {
+        res.status(400).json({ message: 'Change request failed', error: error.message });
     }
 };
 
@@ -373,11 +392,11 @@ const cancelBooking = async (req, res) => {
 const expireIfNeeded = async (booking) => {
     if (!booking) return null;
     if (
-        booking.bookingStatus === "pending_payment" &&
+        booking.status === "pending_payment" &&
         booking.holdExpiresAt &&
         new Date(booking.holdExpiresAt) <= new Date()
     ) {
-        booking.bookingStatus = "expired";
+        booking.status = "expired";
         booking.paymentStatus = "expired";
         if (Array.isArray(booking.sharedPayments)) {
             booking.sharedPayments = booking.sharedPayments.map((s) =>
@@ -456,13 +475,13 @@ const payOnsite = async (req, res) => {
         if (!booking) return res.status(404).json({ message: "Booking not found" });
 
         await expireIfNeeded(booking);
-        if (booking.bookingStatus === "expired") {
+        if (booking.status === "expired") { // Use correct field
             return res.status(409).json({ message: "Booking hold expired" });
         }
 
         booking.paymentMethod = "onsite";
         booking.paymentStatus = "unpaid";
-        booking.bookingStatus = "confirmed";
+        booking.status = "confirmed"; // Use correct field
         await booking.save();
 
         return res.json(booking);
@@ -481,7 +500,7 @@ const paySharedShare = async (req, res) => {
         if (!booking) return res.status(404).json({ message: "Booking not found" });
 
         await expireIfNeeded(booking);
-        if (booking.bookingStatus === "expired") {
+        if (booking.status === "expired") { // Use correct field
             return res.status(409).json({ message: "Booking hold expired" });
         }
 
@@ -509,10 +528,10 @@ const paySharedShare = async (req, res) => {
 
         if (booking.paidShares >= booking.totalShares && booking.totalShares > 0) {
             booking.paymentStatus = "paid";
-            booking.bookingStatus = "confirmed";
+            booking.status = "confirmed"; // Use correct field
         } else {
             booking.paymentStatus = "partial";
-            booking.bookingStatus = "pending_payment";
+            booking.status = "pending_payment"; // Use correct field
         }
 
         await booking.save();
@@ -522,29 +541,83 @@ const paySharedShare = async (req, res) => {
     }
 };
 
-// backend/Booking/controllers/bookingController.js
+// ─── GET /api/bookings/:id/shared/status ───
 const getSharedStatus = async (req, res) => {
     try {
-        const booking = await Booking.findById(req.params.id);
-        if (!booking) return res.status(404).json({ message: "Booking not found" });
+        const { id } = req.params;
+        const booking = await Booking.findById(id);
 
-        await expireIfNeeded(booking);
-
-        // No authorization check here, as this can be a public status page
-        // for shared payments.
-
-        return res.json({
-            bookingId: booking._id,
-            bookingStatus: booking.status, // Use correct field
-            paymentMethod: booking.paymentMethod,
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+        res.json({
+            bookingStatus: booking.status,
             paymentStatus: booking.paymentStatus,
+            paymentMethod: booking.paymentMethod,
             holdExpiresAt: booking.holdExpiresAt,
             totalShares: booking.totalShares,
             paidShares: booking.paidShares,
             sharedPayments: booking.sharedPayments,
         });
-    } catch (err) {
-        return res.status(500).json({ message: err.message });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// ─── POST /api/bookings/block — Block a time slot (Admin) ───
+const blockSlot = async (req, res) => {
+    try {
+        const { facilityId, date, startTime, endTime } = req.body;
+        const { _id: userId, name: userName, role } = req.user; // Get user from `protect` middleware
+
+        if (role !== 'admin' && role !== 'owner') {
+            return res.status(403).json({ message: 'Not authorized to block slots' });
+        }
+
+        const facility = await Facility.findById(facilityId);
+        if (!facility) {
+            return res.status(404).json({ message: 'Facility not found' });
+        }
+
+        const bookingDate = new Date(date);
+        bookingDate.setHours(0, 0, 0, 0);
+        const nextDay = new Date(bookingDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        // Check if there is an existing booking
+        const overlappingBooking = await Booking.findOne({
+            facilityId,
+            date: { $gte: bookingDate, $lt: nextDay },
+            status: { $in: ['confirmed', 'pending_payment', 'blocked'] },
+            startTime: { $lt: endTime },
+            endTime: { $gt: startTime }
+        });
+
+        if (overlappingBooking) {
+            return res.status(409).json({ message: 'This time slot is already booked or blocked.' });
+        }
+
+        const blockedBooking = new Booking({
+            facilityId,
+            userId,
+            userName,
+            date,
+            startTime,
+            endTime,
+            paymentMethod: 'onsite',
+            totalAmount: 0,
+            facilityName: facility.name,
+            facilityType: facility.type,
+            institution: facility.institution,
+            status: 'blocked',
+            paymentStatus: 'paid', // Mark paid so it's irrelevant
+            holdExpiresAt: new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000) // 100 years into future
+        });
+
+        const savedBlock = await blockedBooking.save();
+        res.status(201).json(savedBlock);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -560,5 +633,7 @@ module.exports = {
     payByCard,
     payOnsite,
     paySharedShare,
-    getSharedStatus
+    getSharedStatus,
+    blockSlot,
+    requestChange // Export requestChange
 };

@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Booking } from '../types';
-import { getBookings, cancelBooking } from '../services/bookingApi';
+import { getBookings, cancelBooking, requestBookingChange } from '../services/bookingApi';
+import PaymentStep from './PaymentStep';
 
 interface BookingListProps {
     onBack: () => void;
@@ -16,17 +17,35 @@ export default function BookingList({ onBack }: BookingListProps) {
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [authToken, setAuthToken] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
+    const [now, setNow] = useState(Date.now());
+    const [settlingBookingId, setSettlingBookingId] = useState<string | null>(null);
+
+    // State for request change modal
+    const [changeRequestBookingId, setChangeRequestBookingId] = useState<string | null>(null);
+    const [changeNote, setChangeNote] = useState('');
+    const [isSubmittingChange, setIsSubmittingChange] = useState(false);
+
+    useEffect(() => {
+        const interval = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
-        if (token && user) {
+        if (token) {
             setAuthToken(token);
             try {
-                const parsedUser = JSON.parse(user);
-                setUserId(parsedUser._id); // Assumes user object has _id
+                // Decode JWT to get user ID
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                const decoded = JSON.parse(jsonPayload);
+                setUserId(decoded.id);
             } catch (e) {
-                setError('Could not parse user data.');
+                setError('Could not parse token data.');
+                setLoading(false);
             }
         } else {
             setError('You must be logged in to view your bookings.');
@@ -71,6 +90,22 @@ export default function BookingList({ onBack }: BookingListProps) {
         }
     }
 
+    async function submitChangeRequest() {
+        if (!authToken || !changeRequestBookingId || !changeNote.trim()) return;
+        try {
+            setIsSubmittingChange(true);
+            await requestBookingChange(changeRequestBookingId, changeNote, authToken);
+            alert('Change request sent to admin!');
+            setChangeRequestBookingId(null);
+            setChangeNote('');
+            await loadBookings();
+        } catch (err) {
+            alert(err instanceof Error ? err.message : 'Failed to request change');
+        } finally {
+            setIsSubmittingChange(false);
+        }
+    }
+
     // Convert "14:00" to "2:00 PM"
     function formatTime(time24: string): string {
         const [h, m] = time24.split(':').map(Number);
@@ -88,11 +123,43 @@ export default function BookingList({ onBack }: BookingListProps) {
         });
     }
 
+    function calculateTimeLeft(holdExpiresAt?: string) {
+        if (!holdExpiresAt) return null;
+        const diff = Math.floor((new Date(holdExpiresAt).getTime() - now) / 1000);
+        if (diff <= 0) return 'Expired';
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
     // Filter bookings by status
     const filtered = bookings.filter(b => {
         if (filterStatus && b.status !== filterStatus) return false;
         return true;
     });
+
+    const confirmedBookings = filtered.filter((b) => b.status === 'confirmed');
+    const inProgressBookings = filtered.filter((b) => b.status === 'pending_payment');
+    const otherBookings = filtered.filter((b) => b.status !== 'confirmed' && b.status !== 'pending_payment');
+
+    if (settlingBookingId) {
+        return (
+            <div className="py-6 max-w-4xl mx-auto">
+                <PaymentStep
+                    bookingId={settlingBookingId}
+                    onPaid={() => {
+                        setSettlingBookingId(null);
+                        loadBookings();
+                    }}
+                    onBack={() => setSettlingBookingId(null)}
+                    onExpired={() => {
+                        setSettlingBookingId(null);
+                        loadBookings();
+                    }}
+                />
+            </div>
+        );
+    }
 
     if (loading) {
         return (
@@ -141,81 +208,256 @@ export default function BookingList({ onBack }: BookingListProps) {
                 </div>
             </div>
 
-            {filtered.length === 0 ? (
-                <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-                    <span className="text-5xl block mb-4">📭</span>
-                    <p className="text-xl font-bold text-gray-700 mb-2">No bookings found</p>
-                    <p className="text-gray-500">
-                        {bookings.length > 0 ? 'Try adjusting your filters.' : 'You haven\'t made any bookings yet!'}
-                    </p>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {filtered.map(booking => (
-                        <div
-                            key={booking._id}
-                            className={`border-2 rounded-2xl p-5 sm:p-6 transition-all duration-300 ${
-                                booking.status === 'cancelled'
-                                    ? 'border-gray-100 bg-gray-50/50 opacity-75'
-                                    : 'border-gray-100 bg-white hover:border-[#112240]/20 hover:shadow-lg'
-                            }`}
-                        >
-                            <div className="flex flex-col sm:flex-row gap-5">
-                                <div className="flex-1 space-y-3">
-                                    <div className="flex items-center gap-3 flex-wrap">
-                                        <h3 className="text-lg font-bold text-[#112240]">{booking.facilityName}</h3>
-                                        <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${
-                                            booking.status === 'confirmed'
-                                                ? 'bg-green-100 text-green-800 border border-green-200'
-                                                : booking.status === 'pending_payment'
-                                                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                                                    : 'bg-red-100 text-red-800 border border-red-200'
-                                        }`}>
-                                            {(booking.status ?? 'unknown').replace('_', ' ')}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm font-semibold text-gray-500 flex items-center gap-1.5">
-                                        <span className="text-lg">🏛️</span> {booking.institution}
-                                    </p>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
-                                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                                            <span className="p-1.5 bg-white rounded-md shadow-sm">📅</span>
-                                            <span className="font-semibold">{formatDate(booking.date)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                                            <span className="p-1.5 bg-white rounded-md shadow-sm">🕐</span>
-                                            <span className="font-semibold">{formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
-                                        </div>
-                                    </div>
-
-                                    <p className="text-xs text-gray-400 mt-2 font-mono bg-gray-100 inline-block px-2 py-1 rounded">
-                                        ID: {booking._id}
-                                    </p>
-                                </div>
-
-                                <div className="flex flex-col justify-between items-end gap-4 min-w-[140px]">
-                                    {booking.status === 'confirmed' || booking.status === 'pending_payment' ? (
-                                        <button
-                                            onClick={() => handleCancel(booking._id)}
-                                            disabled={cancellingId === booking._id}
-                                            className="w-full sm:w-auto px-5 py-2.5 bg-red-50 text-red-600 border border-red-200 font-semibold rounded-xl hover:bg-red-600 hover:text-white disabled:opacity-50 transition-all shadow-sm"
-                                        >
-                                            {cancellingId === booking._id ? 'Cancelling...' : 'Cancel'}
-                                        </button>
-                                    ) : (
-                                        <div className="h-10"></div>
-                                    )}
-                                </div>
+            <div className="space-y-10">
+                {/* ─── IN-PROGRESS BOOKINGS ─── */}
+                {(inProgressBookings.length > 0 || filterStatus === 'pending_payment') && (
+                    <div className="animate-in fade-in duration-500">
+                        <h3 className="text-xl font-extrabold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-200 pb-2">
+                            ⏳ In-Progress Bookings
+                        </h3>
+                        {inProgressBookings.length === 0 ? (
+                            <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                <p className="text-gray-500 font-medium">No pending payments.</p>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+                        ) : (
+                            <div className="space-y-4">
+                                {inProgressBookings.map(booking => (
+                                    <div
+                                        key={booking._id}
+                                        className="border-2 border-yellow-200 bg-yellow-50/30 rounded-2xl p-5 sm:p-6 transition-all hover:shadow-lg hover:border-yellow-300"
+                                    >
+                                        <div className="flex flex-col sm:flex-row gap-5">
+                                            <div className="flex-1 space-y-3">
+                                                <div className="flex items-center gap-3 flex-wrap">
+                                                    <h3 className="text-lg font-bold text-[#112240]">{booking.facilityName}</h3>
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                        Pending Payment
+                                                    </span>
+                                                    {booking.holdExpiresAt && (
+                                                        <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-orange-100 text-orange-800 border border-orange-200 shadow-sm animate-pulse">
+                                                            ⏳ {calculateTimeLeft(booking.holdExpiresAt)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-sm font-semibold text-gray-500 flex items-center gap-1.5">
+                                                    <span className="text-lg">🏛️</span> {booking.institution}
+                                                </p>
+
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 bg-white rounded-xl p-4 border border-yellow-100 shadow-sm">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                                                        <span className="p-1.5 bg-yellow-50 rounded-md">📅</span>
+                                                        <span className="font-semibold">{formatDate(booking.date)}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                                                        <span className="p-1.5 bg-yellow-50 rounded-md">🕐</span>
+                                                        <span className="font-semibold">{formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col justify-center items-end gap-3 min-w-[200px]">
+                                                {calculateTimeLeft(booking.holdExpiresAt) !== 'Expired' ? (
+                                                    <button
+                                                        onClick={() => setSettlingBookingId(booking._id)}
+                                                        className="w-full px-5 py-3.5 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-extrabold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 border border-yellow-500 flex items-center justify-center gap-2"
+                                                    >
+                                                        <span>💳</span> Complete Payment
+                                                    </button>
+                                                ) : (
+                                                    <span className="w-full px-5 py-3.5 bg-gray-200 text-gray-500 font-bold rounded-xl text-center shadow-inner">
+                                                        Expired
+                                                    </span>
+                                                )}
+                                                <button
+                                                    onClick={() => handleCancel(booking._id)}
+                                                    disabled={cancellingId === booking._id}
+                                                    className="w-full px-5 py-2.5 text-red-600 bg-white border border-red-200 font-bold rounded-xl hover:bg-red-50 hover:text-red-700 disabled:opacity-50 transition-all shadow-sm"
+                                                >
+                                                    {cancellingId === booking._id ? 'Cancelling...' : 'Cancel Booking'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ─── CONFIRMED BOOKINGS ─── */}
+                {(confirmedBookings.length > 0 || filterStatus === 'confirmed') && (
+                    <div className="animate-in fade-in duration-500">
+                        <h3 className="text-xl font-extrabold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-200 pb-2">
+                            ✅ Confirmed Bookings
+                        </h3>
+                        {confirmedBookings.length === 0 ? (
+                            <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                <p className="text-gray-500 font-medium">No confirmed bookings.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {confirmedBookings.map(booking => (
+                                    <div
+                                        key={booking._id}
+                                        className={`border-2 rounded-2xl p-5 sm:p-6 transition-all duration-300 ${
+                                            booking.status === 'cancelled'
+                                                ? 'border-gray-100 bg-gray-50/50 opacity-75'
+                                                : 'border-gray-100 bg-white hover:border-[#112240]/20 hover:shadow-lg'
+                                        }`}
+                                    >
+                                        <div className="flex flex-col sm:flex-row gap-5">
+                                            <div className="flex-1 space-y-3">
+                                                <div className="flex items-center gap-3 flex-wrap">
+                                                    <h3 className="text-lg font-bold text-[#112240]">{booking.facilityName}</h3>
+                                                    <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${
+                                                        booking.status === 'confirmed'
+                                                            ? 'bg-green-100 text-green-800 border border-green-200'
+                                                            : booking.status === 'pending_payment'
+                                                                ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                                                : 'bg-red-100 text-red-800 border border-red-200'
+                                                    }`}>
+                                                        {(booking.status ?? 'unknown').replace('_', ' ')}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm font-semibold text-gray-500 flex items-center gap-1.5">
+                                                    <span className="text-lg">🏛️</span> {booking.institution}
+                                                </p>
+
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                                                        <span className="p-1.5 bg-white rounded-md shadow-sm">📅</span>
+                                                        <span className="font-semibold">{formatDate(booking.date)}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                                                        <span className="p-1.5 bg-white rounded-md shadow-sm">🕐</span>
+                                                        <span className="font-semibold">{formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-xs text-gray-400 mt-2 font-mono bg-gray-100 inline-block px-2 py-1 rounded">
+                                                    ID: {booking._id}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-col justify-center items-end gap-3 min-w-[200px]">
+                                                {(booking as Booking & { changeRequest?: string }).changeRequest !== 'pending' && (
+                                                    <button
+                                                        onClick={() => setChangeRequestBookingId(booking._id)}
+                                                        className="w-full px-5 py-2.5 bg-blue-50 text-blue-600 font-semibold border border-blue-200 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                                    >
+                                                        Request Change
+                                                    </button>
+                                                )}
+                                                {(booking as Booking & { changeRequest?: string }).changeRequest === 'pending' && (
+                                                    <span className="w-full px-5 py-2.5 bg-orange-50 text-orange-600 font-semibold border border-orange-200 rounded-xl text-center shadow-sm">
+                                                        Change Requested
+                                                    </span>
+                                                )}
+                                                <button
+                                                    onClick={() => handleCancel(booking._id)}
+                                                    disabled={cancellingId === booking._id}
+                                                    className="w-full px-5 py-2.5 bg-red-50 text-red-600 border border-red-200 font-semibold rounded-xl hover:bg-red-600 hover:text-white disabled:opacity-50 transition-all shadow-sm"
+                                                >
+                                                    {cancellingId === booking._id ? 'Cancelling...' : 'Cancel'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ─── OTHER BOOKINGS (CANCELLED / EXPIRED) ─── */}
+                {(otherBookings.length > 0 || ['cancelled', 'expired'].includes(filterStatus)) && (
+                    <div className="animate-in fade-in duration-500 opacity-75">
+                        <h3 className="text-xl font-extrabold text-gray-400 mb-4 flex items-center gap-2 border-b border-gray-200 pb-2">
+                            📁 Past Bookings
+                        </h3>
+                        {otherBookings.length === 0 ? (
+                            <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                <p className="text-gray-500 font-medium">No past bookings.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {otherBookings.map(booking => (
+                                    <div
+                                        key={booking._id}
+                                        className="border border-gray-200 bg-gray-50/50 rounded-2xl p-5 sm:p-6 grayscale-[0.5]"
+                                    >
+                                        <div className="flex flex-col sm:flex-row gap-5">
+                                            <div className="flex-1 space-y-3">
+                                                <div className="flex items-center gap-3 flex-wrap">
+                                                    <h3 className="text-lg font-bold text-gray-500">{booking.facilityName}</h3>
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-200 text-gray-600 border border-gray-300">
+                                                        {(booking.status ?? 'unknown').replace('_', ' ')}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm font-semibold text-gray-400 flex items-center gap-1.5">
+                                                    <span className="text-lg opacity-50">🏛️</span> {booking.institution}
+                                                </p>
+
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 bg-gray-100 rounded-xl p-4 border border-gray-200">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                                                        <span className="p-1.5 bg-gray-200 rounded-md">📅</span>
+                                                        <span className="font-semibold">{formatDate(booking.date)}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                                                        <span className="p-1.5 bg-gray-200 rounded-md">🕐</span>
+                                                        <span className="font-semibold">{formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
 
             <div className="mt-8 text-sm font-semibold text-gray-400 text-center bg-gray-50 py-2 rounded-xl">
                 Showing {filtered.length} of {bookings.length} bookings
             </div>
+
+            {/* Change Request Modal */}
+            {changeRequestBookingId && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+                        <h2 className="text-xl font-bold text-gray-800 mb-2">Request Booking Change</h2>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Describe the requested date, time, or venue change. An admin will review your request.
+                        </p>
+                        <textarea
+                            className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#112240] outline-none"
+                            placeholder="I would like to change my booking to tomorrow at 2:00 PM if possible..."
+                            value={changeNote}
+                            onChange={(e) => setChangeNote(e.target.value)}
+                        />
+                        <div className="mt-6 flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setChangeRequestBookingId(null);
+                                    setChangeNote('');
+                                }}
+                                disabled={isSubmittingChange}
+                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={submitChangeRequest}
+                                disabled={isSubmittingChange || !changeNote.trim()}
+                                className="px-5 py-2 bg-[#112240] text-white font-medium rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                            >
+                                {isSubmittingChange ? 'Submitting...' : 'Submit Request'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

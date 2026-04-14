@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Facility, TimeSlot, BookingStep, CreateBookingResponse } from './types';
 import FacilitySelector from './components/FacilitySelector';
 import BookingCalendar from './components/BookingCalendar';
@@ -44,13 +44,12 @@ export default function BookingPage() {
 
     function handleDateSelect(date: string) {
         setSelectedDate(date);
-        setSelectedSlot(null);
-        setCurrentStep('select-slot');
+        // Do not auto-advance to allow user to confirm via "Continue" button
     }
 
     function handleSlotSelect(slot: TimeSlot) {
         setSelectedSlot(slot);
-        setCurrentStep('confirm');
+        // Do not auto-advance to allow user to confirm via "Continue" button
     }
 
     function handleBookingSuccess(payload: CreateBookingResponse) {
@@ -73,6 +72,28 @@ export default function BookingPage() {
         setShowBookingList(false);
 
     }
+
+    // ─── Restore State after Login ───
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedStateStr = sessionStorage.getItem('pendingBookingState');
+            if (savedStateStr) {
+                try {
+                    const savedState = JSON.parse(savedStateStr);
+                    if (savedState.facility && savedState.date && savedState.slot) {
+                        setSelectedFacility(savedState.facility);
+                        setSelectedDate(savedState.date);
+                        setSelectedSlot(savedState.slot);
+                        setCurrentStep('confirm'); // Jump directly back to confirmation screen!
+                    }
+                    // Clear the state so it doesn't fire again on a normal reload
+                    sessionStorage.removeItem('pendingBookingState');
+                } catch (e) {
+                    console.error("Failed to parse saved booking state", e);
+                }
+            }
+        }
+    }, []);
 
     // ─── Step indicator data ───
     const steps = [
@@ -199,10 +220,32 @@ export default function BookingPage() {
                         )}
 
                         {currentStep === 'select-date' && (
-                            <BookingCalendar
-                                selectedDate={selectedDate}
-                                onDateSelect={handleDateSelect}
-                            />
+                            <div className="space-y-8">
+                                <BookingCalendar
+                                    selectedDate={selectedDate}
+                                    onDateSelect={handleDateSelect}
+                                />
+                                {!selectedDate && (
+                                    <div className="text-center text-sm font-semibold text-red-500 bg-red-50 border border-red-200 rounded-lg p-3">
+                                        Please select a date from the calendar to continue.
+                                    </div>
+                                )}
+                                <div className="flex justify-end pt-6 border-t border-gray-100 mt-6">
+                                    <button
+                                        onClick={() => {
+                                            if (!selectedDate) {
+                                                alert("Please select a date before continuing!");
+                                                return;
+                                            }
+                                            setCurrentStep('select-slot');
+                                        }}
+                                        disabled={!selectedDate}
+                                        className="px-8 py-3.5 bg-[#112240] text-white rounded-xl hover:bg-gray-800 disabled:opacity-50 transition-all font-bold shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                    >
+                                        Continue <span>→</span>
+                                    </button>
+                                </div>
+                            </div>
                         )}
 
                         {currentStep === 'select-slot' && selectedFacility && selectedDate && (
@@ -214,20 +257,36 @@ export default function BookingPage() {
                                     onSlotSelect={handleSlotSelect}
                                     selectedSlot={selectedSlot}
                                 />
-                                {selectedSlot && (
-                                    <div className="flex justify-end pt-6 border-t border-gray-100">
-                                        <button
-                                            onClick={() => setCurrentStep('confirm')}
-                                            className="px-8 py-3.5 bg-[#112240] text-white rounded-xl hover:bg-gray-800 transition-all font-semibold shadow-md shadow-gray-900/10 flex items-center gap-2"
-                                        >
-                                            Continue to Confirm <span>→</span>
-                                        </button>
+                                {!selectedSlot && (
+                                    <div className="text-center text-sm font-semibold text-red-500 bg-red-50 border border-red-200 rounded-lg p-3">
+                                        Please select an available time slot from the grid above to continue.
                                     </div>
                                 )}
+                                <div className="flex justify-between pt-6 border-t border-gray-100 mt-6">
+                                    <button
+                                        onClick={() => setCurrentStep('select-date')}
+                                        className="px-6 py-3.5 border-2 border-gray-200 text-gray-700 bg-white font-semibold rounded-xl hover:bg-gray-50 transition-all shadow-sm"
+                                    >
+                                        <span>←</span> Back
+                                    </button>
+                                     <button
+                                        onClick={() => {
+                                            if (!selectedSlot) {
+                                                alert("Please select a time slot before continuing!");
+                                                return;
+                                            }
+                                            setCurrentStep('confirm');
+                                        }}
+                                        disabled={!selectedSlot}
+                                        className="px-8 py-3.5 bg-[#112240] text-white rounded-xl hover:bg-gray-800 disabled:opacity-50 transition-all font-bold shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                    >
+                                        Confirm Selection <span>→</span>
+                                    </button>
+                                </div>
                             </div>
                         )}
 
-                        {currentStep === 'confirm' && selectedFacility && selectedSlot && (
+                        {currentStep === 'confirm' && selectedFacility && selectedDate && selectedSlot && (
                             <BookingForm
                                 facility={selectedFacility}
                                 date={selectedDate}

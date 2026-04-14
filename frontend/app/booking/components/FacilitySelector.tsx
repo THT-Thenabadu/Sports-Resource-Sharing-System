@@ -22,6 +22,15 @@ const typeLabels: Record<string, string> = {
     track: 'Athletics Track',
 };
 
+// Map facility type to dynamic fallback images
+const fallbackImages: Record<string, string> = {
+    pool: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=800&auto=format&fit=crop',
+    ground: 'https://images.unsplash.com/photo-1589487391730-58f20eb2c308?q=80&w=800&auto=format&fit=crop',
+    court: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?q=80&w=800&auto=format&fit=crop',
+    gym: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop',
+    track: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800&auto=format&fit=crop',
+};
+
 interface FacilitySelectorProps {
     onSelect: (facility: Facility) => void;
     selectedFacilityId?: string;
@@ -130,42 +139,48 @@ export default function FacilitySelector({ onSelect, selectedFacilityId }: Facil
                         <button
                             key={facility._id}
                             onClick={() => onSelect(facility)}
-                            className={`text-left p-5 rounded-2xl border-2 transition-all duration-300 transform hover:-translate-y-1 ${
+                            className={`group relative overflow-hidden text-left w-full h-[320px] rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-end ${
                                 selectedFacilityId === facility._id
-                                    ? 'border-[#112240] bg-blue-50/50 shadow-lg shadow-blue-900/5'
-                                    : 'border-gray-100 bg-white shadow-sm hover:border-[#112240]/30 hover:shadow-md'
+                                    ? 'ring-4 ring-[#64FFDA] ring-offset-2 shadow-2xl'
+                                    : 'hover:shadow-2xl shadow-md border border-gray-200'
                             }`}
                         >
-                            <div className="flex flex-col gap-4">
-                                <div className="flex items-start gap-4">
-                                    <div className="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center text-3xl shadow-inner border border-gray-100">
-                                        {typeIcons[facility.type] || '🏢'}
-                                    </div>
-                                    <div className="flex-1 min-w-0 pt-1">
-                                        <h3 className="font-bold text-[#112240] truncate text-lg">{facility.name}</h3>
-                                        <p className="text-sm font-medium text-gray-500 mt-0.5">{facility.institution}</p>
-                                    </div>
-                                </div>
+                            {/* Background Image */}
+                            <img
+                                src={facility.image || fallbackImages[facility.type] || 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1000&auto=format&fit=crop'}
+                                alt={facility.name}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            />
 
-                                <div className="flex items-center flex-wrap gap-2">
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-gray-100 text-gray-700">
-                                        {typeLabels[facility.type] || facility.type}
+                            {/* Dark Gradient Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#112240] via-[#112240]/60 to-transparent transition-opacity duration-300 group-hover:opacity-90"></div>
+
+                            {/* Content */}
+                            <div className="relative z-10 p-6 flex flex-col gap-3">
+                                <div className="flex items-center flex-wrap gap-2 mb-1 transform transition-transform duration-300 translate-y-2 group-hover:translate-y-0">
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-[#64FFDA] text-[#112240] shadow-sm">
+                                        {typeIcons[facility.type]} {typeLabels[facility.type] || facility.type}
                                     </span>
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-[#112240] text-[#64FFDA]">
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-white/20 text-white backdrop-blur-sm border border-white/10 shadow-sm">
                                         {facility.slotDuration}hr slots
                                     </span>
                                 </div>
-                                <div className="bg-gray-50 rounded-lg p-3 mt-1 border border-gray-100">
-                                    <div className="text-xs font-semibold text-gray-500 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
-                                        <span className="text-sm">⏱</span> Operating Hours
-                                    </div>
-                                    <p className="text-sm font-medium text-[#112240]">
-                                        {facility.operatingHours.open} – {facility.operatingHours.close}
-                                    </p>
+
+                                <div className="transform transition-transform duration-300">
+                                    <h3 className="font-extrabold text-white text-xl sm:text-2xl line-clamp-1">{facility.name}</h3>
+                                    <p className="text-sm font-semibold text-gray-300 mt-1">{facility.institution}</p>
                                 </div>
-                                {facility.description && (
-                                    <p className="text-sm text-gray-600 line-clamp-2 mt-1">{facility.description}</p>
-                                )}
+
+                                {/* Slide-up on hover info (Operating Hours & Desc) */}
+                                <div className="opacity-0 max-h-0 overflow-hidden transform translate-y-4 group-hover:opacity-100 group-hover:max-h-[100px] group-hover:translate-y-0 transition-all duration-300 ease-out">
+                                    <div className="flex items-center gap-1.5 mt-2 text-sm text-[#64FFDA] font-medium bg-black/30 w-fit px-3 py-1.5 rounded-lg border border-white/5 backdrop-blur-md">
+                                        <span className="text-base text-white">⏱</span>
+                                        <span>{facility.operatingHours.open} – {facility.operatingHours.close}</span>
+                                    </div>
+                                    {facility.description && (
+                                        <p className="text-xs text-gray-300 line-clamp-2 mt-3 leading-relaxed border-t border-white/10 pt-2">{facility.description}</p>
+                                    )}
+                                </div>
                             </div>
                         </button>
                     ))}

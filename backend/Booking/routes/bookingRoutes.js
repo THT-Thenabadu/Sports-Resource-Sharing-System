@@ -8,8 +8,10 @@ router.get('/slots/:facilityId/:date', bookingController.getAvailableSlots);
 
 router.get('/', bookingController.getAllBookings);
 router.get('/:id', bookingController.getBookingById);
+router.post('/block', protect, bookingController.blockSlot); // Admin block slot
+router.post('/:id/request-change', protect, bookingController.requestChange); // For user change request
 router.post('/', protect, bookingController.createBooking);
-router.put('/:id', protect, bookingController.updateBooking);
+router.put('/:id', protect, bookingController.updateBooking); // For admin edits & cancel logic overrides
 router.delete('/:id', protect, bookingController.cancelBooking);
 
 // Payment endpoints

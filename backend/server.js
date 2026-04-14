@@ -32,17 +32,22 @@ app.use(passport.session());
 // Routes
 app.use('/api/auth', authRoutes);
 
-// Database
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ Sportek DB Connected"))
-  .catch(err => console.log("❌ DB Error:", err));
+// Booking Component Routes
+const facilityRoutes = require('./Booking/routes/facilityRoutes');
+const bookingRoutes = require('./Booking/routes/bookingRoutes');
+app.use('/api/facilities', facilityRoutes);
+app.use('/api/bookings', bookingRoutes);
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
-
+// Database and Server Initialization
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log("✅ Sportek DB Connected");
-    await createSuperAdmin(); // ✅ runs on every startup, skips if exists
+    await createSuperAdmin(); // Create super admin after DB connection
+
+    const PORT = process.env.PORT || 8000;
+    app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
   })
-  .catch(err => console.log("❌ DB Error:", err));
+  .catch(err => {
+    console.error("❌ DB Connection Error:", err);
+    process.exit(1); // Exit the process if DB connection fails
+  });

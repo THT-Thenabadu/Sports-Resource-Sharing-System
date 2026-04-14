@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import {
     getSharedStatus,
     payBookingByCard,
@@ -40,6 +40,16 @@ export default function PaymentStep({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [authToken, setAuthToken] = useState<string | null>(null);
+    const [now, setNow] = useState(Date.now()); // State to trigger re-render every second
+
+    // Card Details State
+    const [cardNumber, setCardNumber] = useState('');
+    const [cardName, setCardName] = useState('');
+    const [cardExpiry, setCardExpiry] = useState('');
+    const [cardCvc, setCardCvc] = useState('');
+    const [isFlipped, setIsFlipped] = useState(false);
+
+    const cardNumberRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -48,6 +58,12 @@ export default function PaymentStep({
         } else {
             setError('Authentication token not found. Please log in.');
         }
+    }, [bookingId]);
+
+    // This effect runs a timer every second to update the 'now' state
+    useEffect(() => {
+        const interval = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(interval);
     }, []);
 
     const refresh = async () => {
@@ -72,9 +88,15 @@ export default function PaymentStep({
 
     const secondsLeft = useMemo(() => {
         if (!status?.holdExpiresAt) return 0;
-        const diff = Math.floor((new Date(status.holdExpiresAt).getTime() - Date.now()) / 1000);
+        const diff = Math.floor((new Date(status.holdExpiresAt).getTime() - now) / 1000);
         return Math.max(diff, 0);
-    }, [status?.holdExpiresAt]);
+    }, [status?.holdExpiresAt, now]);
+
+    const timerDisplay = useMemo(() => {
+        const minutes = Math.floor(secondsLeft / 60);
+        const seconds = secondsLeft % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }, [secondsLeft]);
 
     const expiresAtLabel = useMemo(() => {
         if (!status?.holdExpiresAt) return 'N/A';
@@ -94,8 +116,25 @@ export default function PaymentStep({
         }
     }, [secondsLeft, status?.bookingStatus, onExpired]);
 
+    const handleScanCard = () => {
+        if (cardNumberRef.current) {
+            cardNumberRef.current.focus();
+            // Give a helpful hint if they're likely on a desktop where native scanning isn't always built-in
+            if (typeof navigator !== 'undefined' && !/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                alert("Camera card scanning is natively supported on mobile devices (iOS/Android). On desktop, your browser may offer to autofill saved cards instead.");
+            }
+        }
+    };
+
     const handleCard = async () => {
         if (!authToken) return setError('You are not authenticated.');
+
+        // Basic validation for the visual form
+        if (cardNumber.replace(/\s/g, '').length < 15) return setError('Please enter a valid card number.');
+        if (!cardName.trim()) return setError('Please enter the name on the card.');
+        if (cardExpiry.length < 5) return setError('Please enter a valid expiry date.');
+        if (cardCvc.length < 3) return setError('Please enter a valid CVC.');
+
         setLoading(true);
         setError('');
         try {
@@ -167,7 +206,7 @@ export default function PaymentStep({
                         </div>
                         <div className="text-right">
                             <p className="text-orange-200 text-xs font-semibold uppercase tracking-wider mb-1">Time Left</p>
-                            <p className="font-bold text-2xl text-orange-400 font-mono tracking-tighter">{secondsLeft}s</p>
+                            <p className="font-bold text-2xl text-orange-400 font-mono tracking-tighter">{timerDisplay}</p>
                         </div>
                     </div>
                 </div>
@@ -181,19 +220,165 @@ export default function PaymentStep({
 
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm mb-6">
                 {status?.paymentMethod === 'card' && (
-                    <div className="text-center space-y-4">
-                        <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto text-3xl mb-2">💳</div>
-                        <button
-                            type="button"
-                            onClick={handleCard}
-                            disabled={loading}
-                            className="w-full px-6 py-3.5 bg-[#112240] text-white font-semibold rounded-xl hover:bg-gray-800 focus:ring-4 focus:ring-[#112240]/30 disabled:opacity-70 transition-all shadow-md flex items-center justify-center gap-2"
-                        >
-                            {loading ? (
-                                <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Processing...</>
-                            ) : 'Confirm & Pay via Card'}
-                        </button>
-                        <p className="text-sm text-gray-500 font-medium">Clicking this will simulate a successful card payment.</p>
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        {/* CSS Credit Card Graphic */}
+                        <div className="relative w-full max-w-[340px] h-[210px] mx-auto perspective-1000 transition-transform duration-700 ease-in-out cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
+                            <div className={`w-full h-full relative preserve-3d transition-transform duration-700 ${isFlipped ? 'rotate-y-180' : ''}`}>
+
+                                {/* Card Front */}
+                                <div className="absolute w-full h-full backface-hidden rounded-2xl p-6 text-white overflow-hidden shadow-2xl flex flex-col justify-between"
+                                     style={{ background: 'linear-gradient(135deg, #112240 0%, #1a365d 100%)' }}>
+                                    <div className="absolute top-0 right-0 w-40 h-40 bg-[#64FFDA] opacity-10 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
+                                    <div className="flex justify-between items-start relative z-10">
+                                        <div className="bg-white/20 px-2 py-1 rounded border border-white/10 backdrop-blur-sm">
+                                            <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                                <path d="M2 10h20" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <div className="w-8 h-8 rounded-full bg-red-500/80 mix-blend-multiply"></div>
+                                            <div className="w-8 h-8 rounded-full bg-yellow-500/80 mix-blend-multiply -ml-4"></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="relative z-10 w-full mt-4">
+                                        <p className="text-gray-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Card Number</p>
+                                        <p className="text-2xl tracking-[0.2em] font-mono font-bold text-white whitespace-pre text-shadow-sm min-h-[32px]">
+                                            {cardNumber || '**** **** **** ****'}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex justify-between items-end relative z-10 mt-2">
+                                        <div className="flex-1 overflow-hidden pr-4">
+                                            <p className="text-gray-400 text-[10px] uppercase tracking-widest mb-0.5 font-bold">Card Holder</p>
+                                            <p className="font-semibold tracking-wider uppercase text-white truncate text-sm min-h-[20px]">
+                                                {cardName || 'YOUR NAME'}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-gray-400 text-[10px] uppercase tracking-widest mb-0.5 font-bold">Expires</p>
+                                            <p className="font-semibold tracking-wider font-mono text-white text-sm min-h-[20px]">
+                                                {cardExpiry || 'MM/YY'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Card Back */}
+                                <div className="absolute w-full h-full backface-hidden rounded-2xl overflow-hidden shadow-2xl rotate-y-180"
+                                     style={{ background: 'linear-gradient(135deg, #1a365d 0%, #112240 100%)' }}>
+                                    <div className="w-full h-12 bg-black mt-6 opacity-80 shadow-inner"></div>
+                                    <div className="px-6 mt-4">
+                                        <p className="text-gray-400 text-[10px] uppercase tracking-widest mb-1 text-right font-bold pr-2">CVC</p>
+                                        <div className="w-full bg-white h-10 rounded text-right pr-4 flex items-center justify-end shadow-inner">
+                                            <span className="font-mono text-black text-lg italic tracking-widest">{cardCvc || '***'}</span>
+                                        </div>
+                                        <p className="text-gray-500 text-[8px] mt-4 text-center">This card is for visual demonstration purposes only.</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {/* Interactive Card Form */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="sm:col-span-2 relative">
+                                <div className="flex justify-between items-end mb-1">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Card Number</label>
+                                    <button
+                                        type="button"
+                                        onClick={handleScanCard}
+                                        className="text-xs font-bold text-[#64FFDA] bg-[#112240] px-2 py-1 rounded shadow hover:bg-gray-800 transition-colors flex items-center gap-1"
+                                    >
+                                        <span>📷</span> Scan Card
+                                    </button>
+                                </div>
+                                <input
+                                    type="text"
+                                    name="cardnumber"
+                                    autoComplete="cc-number"
+                                    ref={cardNumberRef}
+                                    maxLength={19}
+                                    placeholder="0000 0000 0000 0000"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-shadow font-mono text-lg outline-none"
+                                    value={cardNumber}
+                                    onFocus={() => setIsFlipped(false)}
+                                    onChange={(e) => {
+                                        let val = e.target.value.replace(/\D/g, '');
+                                        val = val.replace(/(.{4})/g, '$1 ').trim();
+                                        setCardNumber(val);
+                                    }}
+                                />
+                            </div>
+
+                            <div className="relative">
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Name on Card</label>
+                                <input
+                                    type="text"
+                                    name="ccname"
+                                    autoComplete="cc-name"
+                                    placeholder="e.g. John Doe"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-shadow uppercase font-medium outline-none"
+                                    value={cardName}
+                                    onFocus={() => setIsFlipped(false)}
+                                    onChange={(e) => setCardName(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="relative">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Expiry</label>
+                                    <input
+                                        type="text"
+                                        name="cc-exp"
+                                        autoComplete="cc-exp"
+                                        maxLength={5}
+                                        placeholder="MM/YY"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-shadow font-mono text-center outline-none"
+                                        value={cardExpiry}
+                                        onFocus={() => setIsFlipped(false)}
+                                        onChange={(e) => {
+                                            let val = e.target.value.replace(/\D/g, '');
+                                            if (val.length >= 2) val = `${val.slice(0, 2)}/${val.slice(2, 4)}`;
+                                            setCardExpiry(val);
+                                        }}
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">CVC</label>
+                                    <input
+                                        type="text"
+                                        name="cvc"
+                                        autoComplete="cc-csc"
+                                        maxLength={4}
+                                        placeholder="123"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#112240] focus:border-[#112240] transition-shadow font-mono text-center outline-none"
+                                        value={cardCvc}
+                                        onFocus={() => setIsFlipped(true)}
+                                        onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, ''))}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border-t border-gray-100 pt-6 mt-6">
+                            <button
+                                type="button"
+                                onClick={handleCard}
+                                disabled={loading}
+                                className="w-full px-6 py-4 bg-[#112240] text-white font-bold text-lg rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 focus:ring-4 focus:ring-[#112240]/30 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                            >
+                                {loading ? (
+                                    <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Processing...</>
+                                ) : (
+                                    <>Pay {status?.paymentStatus === 'partial' ? 'Remaining' : 'Now'} <span className="text-[#64FFDA]">→</span></>
+                                )}
+                            </button>
+                            <p className="text-xs text-center text-gray-400 font-medium mt-4 uppercase tracking-widest flex items-center justify-center gap-1.5">
+                                <span className="text-base text-gray-500">🔒</span> Secured via highly encrypted endpoint
+                            </p>
+                        </div>
                     </div>
                 )}
 

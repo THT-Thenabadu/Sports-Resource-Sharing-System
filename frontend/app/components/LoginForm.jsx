@@ -41,15 +41,21 @@ export default function LoginForm() {
         // ✅ Save user as object so Navbar can read it
         localStorage.setItem("user", JSON.stringify({
           name: data.name,
-          role: data.role
+          role: data.role,
+          institution: data.institution
         }));
   
         // ✅ Notify Navbar to update instantly without refresh
         window.dispatchEvent(new Event('userUpdated'));
   
-        // Redirect based on role
-        if (data.role === "owner") {
-          window.location.href = "/";
+        // Redirect based on role and URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('returnUrl');
+
+        if (data.role === "owner" || data.role === "admin") {
+          window.location.href = "/admin";
+        } else if (returnUrl) {
+          window.location.href = returnUrl;
         } else {
           window.location.href = "/";
         }
@@ -175,7 +181,7 @@ export default function LoginForm() {
         {/* Register Link */}
         <p className="register-prompt">
           Don't have an account?{" "}
-          <a className="register-link" href="#">
+          <a className="register-link" href="/register">
             Register
           </a>
         </p>

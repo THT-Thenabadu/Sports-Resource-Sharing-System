@@ -90,11 +90,14 @@ export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSel
             </div>
 
             {/* Slot info banner */}
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 shadow-sm flex items-center gap-3">
-                <span className="text-xl">ℹ️</span>
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 border border-blue-100 rounded-2xl p-5 mb-8 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-inner">
+                    <span className="text-xl">ℹ️</span>
+                </div>
                 <p className="text-sm text-blue-900 font-medium">
-                    <span className="font-bold text-[#112240]">{facilityName}</span> uses{' '}
-                    <span className="px-2 py-0.5 rounded bg-blue-200 text-blue-900 font-bold mx-1">{slotData.facility.slotDuration}-hour</span> time slots.
+                    <strong className="text-[#112240] text-base">{facilityName}</strong> operates using{' '}
+                    <span className="px-2.5 py-1 rounded-md bg-blue-200/70 text-blue-900 font-extrabold mx-1 shadow-sm">{slotData.facility.slotDuration}-HOURS</span>{' '}
+                    time slots.
                 </p>
             </div>
 
@@ -113,13 +116,17 @@ export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSel
                     <span className="text-gray-400">Booked</span>
                 </div>
                 <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-md bg-red-100 border-2 border-red-200 opacity-80"></div>
+                    <span className="text-red-600">Blocked</span>
+                </div>
+                <div className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-md bg-[#112240] border-2 border-[#112240] shadow-sm ring-2 ring-[#64FFDA]/30"></div>
                     <span className="text-gray-900">Selected</span>
                 </div>
             </div>
 
             {/* Time Slot Grid */}
-            <div className={`grid gap-3 ${is4HourSlot ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+            <div className={`grid gap-3 sm:gap-4 ${is4HourSlot ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                 {slotData.slots.map((slot) => {
                     const isSelected = selectedSlot?.startTime === slot.startTime && selectedSlot?.endTime === slot.endTime;
                     const isAvailable = slot.status === 'available';
@@ -130,36 +137,45 @@ export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSel
                             onClick={() => isAvailable && onSlotSelect(slot)}
                             disabled={!isAvailable}
                             className={`
-                                relative p-4 rounded-xl border-2 transition-all duration-300 text-center overflow-hidden
+                                group relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-300 text-center overflow-hidden
                                 ${isSelected
-                                    ? 'border-[#112240] bg-[#112240] text-white shadow-lg shadow-gray-900/20 scale-[1.02] ring-2 ring-offset-2 ring-[#112240]'
+                                    ? 'border-[#112240] bg-[#112240] text-white shadow-xl shadow-gray-900/20 scale-[1.05] ring-4 ring-[#64FFDA]/30 ring-offset-1 z-10'
                                     : isAvailable
-                                        ? 'border-gray-200 bg-white text-gray-800 hover:border-[#112240]/50 hover:shadow-md cursor-pointer hover:-translate-y-0.5'
+                                        ? 'border-transparent bg-white text-gray-800 hover:border-[#112240]/40 shadow-sm hover:shadow-lg hover:-translate-y-1 cursor-pointer'
                                         : slot.status === 'in_progress'
-                                            ? 'border-yellow-200 bg-yellow-50 text-yellow-700 cursor-not-allowed opacity-80'
-                                            : 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed opacity-70'
+                                            ? 'border-yellow-200/50 bg-yellow-50/50 text-yellow-700/60 cursor-not-allowed'
+                                            : slot.status === 'blocked'
+                                                ? 'border-red-200/50 bg-red-50/50 text-red-700/60 cursor-not-allowed'
+                                                : 'border-transparent bg-gray-50/50 text-gray-400 cursor-not-allowed'
                                 }
-                                ${is4HourSlot ? 'py-6' : ''}
+                                ${is4HourSlot ? 'py-8' : ''}
                             `}
                         >
-                            {isSelected && (
-                                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 to-white/10 opacity-50"></div>
+                            {/* Animated background gradient for selection */}
+                            <div className={`absolute inset-0 bg-gradient-to-br from-[#112240] to-gray-900 transition-opacity duration-500 ${isSelected ? 'opacity-100' : 'opacity-0'}`}></div>
+
+                            {/* Hover shimmer effect */}
+                            {isAvailable && !isSelected && (
+                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-gray-50 to-transparent transition-opacity duration-300"></div>
                             )}
-                            <div className={`font-bold tracking-tight ${is4HourSlot ? 'text-xl' : 'text-base'}`}>
+
+                            <div className={`relative z-10 font-black tracking-tight transition-colors duration-300 ${is4HourSlot ? 'text-2xl' : 'text-lg'} ${isSelected ? 'text-white' : isAvailable ? 'text-[#112240] group-hover:text-blue-900' : ''}`}>
                                 {formatTime(slot.startTime)}
                             </div>
-                            <div className={`${isSelected ? 'text-[#64FFDA] font-semibold' : isAvailable ? 'text-gray-500 font-medium' : 'text-inherit'} ${is4HourSlot ? 'text-base' : 'text-xs'} mt-1`}>
+                            <div className={`relative z-10 transition-colors duration-300 uppercase tracking-widest mt-1.5 ${isSelected ? 'text-[#64FFDA] font-bold' : isAvailable ? 'text-gray-400 font-semibold group-hover:text-gray-500' : ''} ${is4HourSlot ? 'text-sm' : 'text-[10px]'}`}>
                                 to {formatTime(slot.endTime)}
                             </div>
+
                             {slot.status !== 'available' && !isSelected && (
-                                <div className={`absolute inset-0 flex items-center justify-center ${slot.status === 'in_progress' ? 'bg-yellow-50/80' : 'bg-gray-50/80'} backdrop-blur-[1px]`}>
-                                    <span className={`px-2 py-1 ${slot.status === 'in_progress' ? 'bg-yellow-200 text-yellow-800' : 'bg-gray-200 text-gray-600'} text-[10px] font-bold rounded-md uppercase tracking-wider shadow-sm`}>
-                                        {slot.status === 'in_progress' ? 'In Progress' : 'Booked'}
-                                    </span>
+                                <div className={`absolute inset-0 flex items-center justify-center ${slot.status === 'in_progress' ? 'bg-amber-100/40' : slot.status === 'blocked' ? 'bg-red-100/60' : 'bg-gray-100/50'} backdrop-blur-[1px]`}>
+                                    <div className={`px-3 py-1.5 ${slot.status === 'in_progress' ? 'bg-amber-300 text-amber-900' : slot.status === 'blocked' ? 'bg-red-300 text-red-900' : 'bg-gray-200 text-gray-500'} text-[10px] font-extrabold rounded bg-opacity-90 uppercase tracking-widest shadow-sm transform -rotate-12`}>
+                                        {slot.status === 'in_progress' ? 'Holding' : slot.status === 'blocked' ? 'Blocked' : 'Booked'}
+                                    </div>
                                 </div>
                             )}
+
                             {isSelected && (
-                                <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#64FFDA] shadow-[0_0_8px_rgba(100,255,218,0.8)]"></div>
+                                <div className="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-[#64FFDA] shadow-[0_0_12px_rgba(100,255,218,1)]"></div>
                             )}
                         </button>
                     );
