@@ -5,7 +5,7 @@
  * all HTTP communication with the backend REST API.
  */
 
-import { Facility, Property, SlotResponse, Booking, CreateBookingData, CreateBookingResponse } from '../types';
+import { Facility, SlotResponse, Booking, CreateBookingData, CreateBookingResponse, Property } from '../types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -35,10 +35,48 @@ export async function getFacilityById(id: string): Promise<Facility> {
     return res.json();
 }
 
-export async function getProperties(): Promise<any[]> {
+export async function getProperties(): Promise<Property[]> {
     const res = await fetch(`${API_BASE}/properties`);
     if (!res.ok) throw new Error('Failed to fetch properties');
     return res.json();
+}
+
+export async function createShareLink(id: string, shareIndex: number, token: string) {
+    const res = await fetch(`${API_BASE}/bookings/${id}/shared/link/${shareIndex}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to create share link');
+    }
+    return res.json() as Promise<{ bookingId: string; shareIndex: number; token: string; url: string }>;
+}
+
+export async function getSharePaymentContext(token: string) {
+    const res = await fetch(`${API_BASE}/bookings/shared/context?token=${encodeURIComponent(token)}`);
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to load share payment context');
+    }
+    return res.json() as Promise<{
+        booking: {
+            _id: string;
+            facilityName: string;
+            date: string;
+            startTime: string;
+            endTime: string;
+            totalAmount: number;
+            shareAmount: number;
+            paymentStatus: string;
+        };
+        share: {
+            shareIndex: number;
+            status: 'pending' | 'paid' | 'expired';
+            payerName?: string;
+            payerContact?: string;
+        };
+    }>;
 }
 
 // ─── Booking Endpoints ───

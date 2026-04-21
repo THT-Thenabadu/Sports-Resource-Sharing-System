@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from 'react';
 import {
+    createShareLink,
     getSharedStatus,
     payBookingByCard,
     payBookingOnsite,
@@ -41,6 +42,8 @@ export default function PaymentStep({
     const [error, setError] = useState('');
     const [authToken, setAuthToken] = useState<string | null>(null);
     const [now, setNow] = useState(Date.now()); // State to trigger re-render every second
+
+    const [shareLinks, setShareLinks] = useState<Record<number, string>>({});
 
     // Card Details State
     const [cardNumber, setCardNumber] = useState('');
@@ -84,7 +87,7 @@ export default function PaymentStep({
         refresh();
         const timer = setInterval(refresh, 5000);
         return () => clearInterval(timer);
-    }, [bookingId]);
+    }, [bookingId, onPaid, onExpired, status?.bookingStatus]);
 
     const secondsLeft = useMemo(() => {
         if (!status?.holdExpiresAt) return 0;
@@ -172,6 +175,31 @@ export default function PaymentStep({
             setError(err instanceof Error ? err.message : `Share ${shareIndex} payment failed`);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const generateShareLink = async (shareIndex: number) => {
+        if (!authToken) return setError('You are not authenticated.');
+        setLoading(true);
+        setError('');
+        try {
+            const data = await createShareLink(bookingId, shareIndex, authToken);
+            setShareLinks((prev) => ({ ...prev, [shareIndex]: data.url }));
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to generate share link');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const copyLink = async (shareIndex: number) => {
+        const url = shareLinks[shareIndex];
+        if (!url) return;
+        try {
+            await navigator.clipboard.writeText(url);
+            alert('Link copied! Share it with your teammate.');
+        } catch {
+            alert('Copy failed. Please copy manually.');
         }
     };
 
@@ -431,6 +459,50 @@ export default function PaymentStep({
                                 </div>
                             ))}
                         </div>
+
+                        {/* Share Link Generation and Copy UI */}
+                        <div className="mt-4">
+                            <p className="text-gray-600 text-sm mb-2">Share this link with your teammate to request their payment:</p>
+                            <div className="flex flex-col gap-3">
+                                {(status.sharedPayments || []).map((s) => (
+                                    <div key={s.shareIndex} className="bg-white border border-gray-100 rounded-xl p-3">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="font-semibold text-gray-800">Share #{s.shareIndex}</div>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    disabled={loading || s.status === 'paid'}
+                                                    onClick={() => generateShareLink(s.shareIndex)}
+                                                    className="px-3 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                                                >
+                                                    Generate Link
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    disabled={!shareLinks[s.shareIndex]}
+                                                    onClick={() => copyLink(s.shareIndex)}
+                                                    className="px-3 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+                                                >
+                                                    Copy
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {shareLinks[s.shareIndex] && (
+                                            <div className="mt-2">
+                                                <input
+                                                    type="text"
+                                                    readOnly
+                                                    value={shareLinks[s.shareIndex]}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-mono"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="bg-blue-50 text-blue-800 p-3 rounded-lg text-sm font-medium text-center mt-2 flex justify-center items-center gap-2">
                             <span className="text-xl">ℹ️</span> Booking will be confirmed once all shares are paid.
                         </div>

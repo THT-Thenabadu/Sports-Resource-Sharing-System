@@ -18,9 +18,15 @@ router.delete('/:id', protect, bookingController.cancelBooking);
 router.post('/:id/pay/card', protect, bookingController.payByCard);
 router.post('/:id/pay/onsite', protect, bookingController.payOnsite);
 
+// Public share-payment context lookup (token-based)
+router.get('/shared/context', bookingController.getSharePaymentContext);
+
+// Generate share-payment links (booking owner/admin)
+router.post('/:id/shared/link/:shareIndex', protect, bookingController.createSharePaymentLink);
+
 // Optional payment endpoints (register only if implemented)
 if (typeof bookingController.paySharedShare === 'function') {
-    router.post('/:id/shared/pay/:shareIndex', bookingController.paySharedShare);
+    router.post('/:id/shared/pay/:shareIndex', protect, bookingController.paySharedShare);
 }
 if (typeof bookingController.getSharedStatus === 'function') {
     router.get('/:id/shared/status', bookingController.getSharedStatus);

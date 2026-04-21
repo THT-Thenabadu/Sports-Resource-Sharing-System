@@ -1,6 +1,7 @@
 const Booking = require('../models/Booking');
 const Facility = require('../models/Facility');
 const Property = require('../../models/Property');
+const jwt = require('jsonwebtoken');
 
 const PENDING_PAYMENT_WINDOW_MINUTES = 10;
 const HOLD_MINUTES = 5;
@@ -55,6 +56,18 @@ async function expireStalePendingBookings() {
             }
         }
     );
+}
+
+function signShareToken(bookingId, shareIndex) {
+    return jwt.sign(
+        { bookingId, shareIndex },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+}
+
+function verifyShareToken(token) {
+    return jwt.verify(token, process.env.JWT_SECRET);
 }
 
 // ─── GET /api/bookings/slots/:facilityId/:date ───
@@ -565,6 +578,92 @@ const getSharedStatus = async (req, res) => {
     }
 };
 
+// ─── POST /api/bookings/:id/shared/link/:shareIndex (protected) ───
+// Generate a share-payment link that teammates can use (after login) to pay a specific share.
+const createSharePaymentLink = async (req, res) => {
+    try {
+        const { id, shareIndex } = req.params;
+        const shareIdx = Number(shareIndex);
+
+        const booking = await Booking.findById(id);
+        if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+        if (!Array.isArray(booking.sharedPayments) || booking.sharedPayments.length === 0) {
+            return res.status(400).json({ message: 'This booking is not configured for shared payments' });
+        }
+
+        if (!Number.isInteger(shareIdx) || shareIdx < 1 || shareIdx > booking.sharedPayments.length) {
+            return res.status(400).json({ message: 'Invalid share index' });
+        }
+
+        // Only booking owner (head person) or admins/owners can generate share links.
+        // Note: role "owner" here is platform owner/admin-ish (matches existing codebase role checks).
+        if (String(booking.userId) !== String(req.user._id) && req.user.role !== 'admin' && req.user.role !== 'owner') {
+            return res.status(403).json({ message: 'Not authorized to generate share links for this booking' });
+        }
+
+        const share = booking.sharedPayments.find((s) => Number(s.shareIndex) === shareIdx);
+        if (!share) return res.status(404).json({ message: 'Share not found' });
+
+        if (share.status === 'paid') {
+            return res.status(409).json({ message: 'This share has already been paid' });
+        }
+
+        const token = signShareToken(booking._id.toString(), shareIdx);
+        const frontend = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const url = `${frontend}/booking/shared-pay?token=${encodeURIComponent(token)}`;
+
+        return res.status(200).json({ bookingId: booking._id, shareIndex: shareIdx, token, url });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+// ─── GET /api/bookings/shared/context?token=... (public) ───
+// Used by teammate share-payment page to display booking/share info.
+// Payment is still done via protected /shared/pay.
+const getSharePaymentContext = async (req, res) => {
+    try {
+        const { token } = req.query;
+        if (!token) return res.status(400).json({ message: 'Token is required' });
+
+        let decoded;
+        try {
+            decoded = verifyShareToken(String(token));
+        } catch {
+            return res.status(401).json({ message: 'Invalid or expired share token' });
+        }
+
+        const { bookingId, shareIndex } = decoded;
+        const booking = await Booking.findById(bookingId);
+        if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+        const share = booking.sharedPayments?.find((s) => Number(s.shareIndex) === Number(shareIndex));
+        if (!share) return res.status(404).json({ message: 'Share not found' });
+
+        return res.status(200).json({
+            booking: {
+                _id: booking._id,
+                facilityName: booking.facilityName,
+                date: booking.date,
+                startTime: booking.startTime,
+                endTime: booking.endTime,
+                totalAmount: booking.totalAmount,
+                shareAmount: booking.shareAmount,
+                paymentStatus: booking.paymentStatus,
+            },
+            share: {
+                shareIndex: share.shareIndex,
+                status: share.status,
+                payerName: share.payerName || '',
+                payerContact: share.payerContact || '',
+            },
+        });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
 // ─── POST /api/bookings/block — Block a time slot (Admin) ───
 const blockSlot = async (req, res) => {
     try {
@@ -636,5 +735,7 @@ module.exports = {
     paySharedShare,
     getSharedStatus,
     blockSlot,
-    requestChange // Export requestChange
+    requestChange, // Export requestChange
+    getSharePaymentContext,
+    createSharePaymentLink,
 };
