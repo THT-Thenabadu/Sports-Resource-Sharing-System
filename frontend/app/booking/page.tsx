@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Facility, TimeSlot, BookingStep, CreateBookingResponse } from './types';
+import { Facility, Property, TimeSlot, BookingStep, CreateBookingResponse } from './types';
 import FacilitySelector from './components/FacilitySelector';
 import BookingCalendar from './components/BookingCalendar';
 import TimeSlotGrid from './components/TimeSlotGrid';
@@ -22,7 +22,7 @@ import PaymentStep from './components/PaymentStep';
 export default function BookingPage() {
     // ─── Booking Flow State ───
     const [currentStep, setCurrentStep] = useState<BookingStep>('select-facility');
-    const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+    const [selectedFacility, setSelectedFacility] = useState<Property | null>(null);
     const [selectedDate, setSelectedDate] = useState<string>('');
     const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
     const [bookingId, setBookingId] = useState<string>('');
@@ -35,8 +35,8 @@ export default function BookingPage() {
     // } | null>(null);
 
     // ─── Step Navigation Handlers ───
-    function handleFacilitySelect(facility: Facility) {
-        setSelectedFacility(facility);
+    function handleFacilitySelect(property: Property) {
+        setSelectedFacility(property);
         setSelectedDate('');
         setSelectedSlot(null);
         setCurrentStep('select-date');
@@ -81,10 +81,12 @@ export default function BookingPage() {
                 try {
                     const savedState = JSON.parse(savedStateStr);
                     if (savedState.facility && savedState.date && savedState.slot) {
-                        setSelectedFacility(savedState.facility);
-                        setSelectedDate(savedState.date);
-                        setSelectedSlot(savedState.slot);
-                        setCurrentStep('confirm'); // Jump directly back to confirmation screen!
+                        setTimeout(() => {
+                            setSelectedFacility(savedState.facility);
+                            setSelectedDate(savedState.date);
+                            setSelectedSlot(savedState.slot);
+                            setCurrentStep('confirm'); // Jump directly back to confirmation screen!
+                        }, 0);
                     }
                     // Clear the state so it doesn't fire again on a normal reload
                     sessionStorage.removeItem('pendingBookingState');
@@ -182,8 +184,8 @@ export default function BookingPage() {
                             <div className="w-px h-6 bg-gray-200 hidden sm:block"></div>
                             <span className="text-gray-600 flex items-center gap-2">
                                 <span className="p-1.5 bg-blue-50 rounded-md">🏢</span>
-                                <span className="font-semibold text-gray-900">{selectedFacility.name}</span>
-                                <span className="text-gray-400 hidden sm:inline"> @ {selectedFacility.institution}</span>
+                                <span className="font-semibold text-gray-900">{selectedFacility.title}</span>
+                                <span className="text-gray-400 hidden sm:inline"> @ {selectedFacility.city}</span>
                             </span>
                             {selectedDate && (
                                 <>
@@ -251,8 +253,8 @@ export default function BookingPage() {
                         {currentStep === 'select-slot' && selectedFacility && selectedDate && (
                             <div className="space-y-8">
                                 <TimeSlotGrid
-                                    facilityId={selectedFacility._id}
-                                    facilityName={selectedFacility.name}
+                                    propertyId={selectedFacility._id}
+                                    propertyName={selectedFacility.title}
                                     date={selectedDate}
                                     onSlotSelect={handleSlotSelect}
                                     selectedSlot={selectedSlot}

@@ -1,3 +1,4 @@
+'use client';
 import { useState } from "react";
 import "../component-styles/LoginForm.css";
 
@@ -21,7 +22,7 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const response = await fetch("http://localhost:8000/api/auth/login", {
         method: "POST",
@@ -31,33 +32,40 @@ export default function LoginForm() {
           password: formData.password,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        // ✅ Save token
         localStorage.setItem("token", data.token);
-  
-        // ✅ Save user as object so Navbar can read it
         localStorage.setItem("user", JSON.stringify({
           name: data.name,
           role: data.role,
           institution: data.institution
         }));
-  
-        // ✅ Notify Navbar to update instantly without refresh
+
         window.dispatchEvent(new Event('userUpdated'));
+
   
         // Redirect based on role and URL params
         const urlParams = new URLSearchParams(window.location.search);
         const returnUrl = urlParams.get('returnUrl');
 
-        if (data.role === "owner" || data.role === "admin") {
-          window.location.href = "/admin";
-        } else if (returnUrl) {
+        // if (data.role === "owner" || data.role === "admin") {
+        //   window.location.href = "/admin";
+        // } else if (returnUrl) {
+        //   window.location.href = returnUrl;
+
+
+        // ✅ Redirect based on role and URL params
+        if (returnUrl) {
           window.location.href = returnUrl;
+        } else if (data.role === 'admin') {
+          window.location.href = '/admin';
+        } else if (data.role === 'owner') {
+          window.location.href = '/propertyowner';
+
         } else {
-          window.location.href = "/";
+          window.location.href = '/'; // customer goes to homepage
         }
       } else {
         alert(data.message || "Login failed");
@@ -70,19 +78,15 @@ export default function LoginForm() {
     }
   };
 
-
   return (
     <main className="login-main">
       <div className="login-card">
-        {/* Header */}
         <div className="login-header">
           <h1 className="login-title">Welcome Back</h1>
           <p className="login-subtitle">Log in to your Sportek account</p>
         </div>
 
-        {/* Form */}
         <form className="login-form" onSubmit={handleSubmit}>
-          {/* Email */}
           <div className="form-group">
             <label className="form-label">Email Address</label>
             <div className="input-wrapper">
@@ -99,7 +103,6 @@ export default function LoginForm() {
             </div>
           </div>
 
-          {/* Password */}
           <div className="form-group">
             <label className="form-label">Password</label>
             <div className="input-wrapper">
@@ -126,7 +129,6 @@ export default function LoginForm() {
             </div>
           </div>
 
-          {/* Remember Me + Forgot Password */}
           <div className="form-row">
             <label className="remember-label">
               <input
@@ -138,28 +140,23 @@ export default function LoginForm() {
               />
               <span className="remember-text">Remember Me</span>
             </label>
-            <a className="forgot-link" href="#">
-              Forgot Password?
-            </a>
+            <a className="forgot-link" href="#">Forgot Password?</a>
           </div>
 
-          {/* Submit */}
-          <button className="submit-btn" type="submit">
-            Sign In
+          <button className="submit-btn" type="submit" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        {/* Divider */}
         <div className="divider">
           <div className="divider-line" />
           <span className="divider-text">Or continue with</span>
           <div className="divider-line" />
         </div>
 
-        {/* Social Buttons */}
         <div className="social-grid">
           <button className="social-btn" type="button"
-          onClick={() => window.location.href = 'http://localhost:8000/api/auth/google'}
+            onClick={() => window.location.href = 'http://localhost:8000/api/auth/google'}
           >
             <svg className="social-icon" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -178,12 +175,15 @@ export default function LoginForm() {
           </button>
         </div>
 
-        {/* Register Link */}
         <p className="register-prompt">
-          Don't have an account?{" "}
+          Dont have an account?{" "}
+
           <a className="register-link" href="/register">
             Register
           </a>
+
+          {/*<a className="register-link" href="#">Register</a>*/}
+
         </p>
       </div>
     </main>

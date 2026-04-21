@@ -5,7 +5,7 @@
  * all HTTP communication with the backend REST API.
  */
 
-import { Facility, SlotResponse, Booking, CreateBookingData, CreateBookingResponse } from '../types';
+import { Facility, Property, SlotResponse, Booking, CreateBookingData, CreateBookingResponse } from '../types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -35,10 +35,16 @@ export async function getFacilityById(id: string): Promise<Facility> {
     return res.json();
 }
 
+export async function getProperties(): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/properties`);
+    if (!res.ok) throw new Error('Failed to fetch properties');
+    return res.json();
+}
+
 // ─── Booking Endpoints ───
 
-export async function getAvailableSlots(facilityId: string, date: string): Promise<SlotResponse> {
-    const res = await fetch(`${API_BASE}/bookings/slots/${facilityId}/${date}`);
+export async function getAvailableSlots(propertyId: string, date: string): Promise<SlotResponse> {
+    const res = await fetch(`${API_BASE}/bookings/slots/${propertyId}/${date}`);
     if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || 'Failed to fetch slots');

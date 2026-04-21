@@ -1,8 +1,10 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import '../component-styles/PropertyOwnerCta.css';
 
 export default function PropertyOwnerCta() {
+  const router = useRouter();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -38,7 +40,9 @@ export default function PropertyOwnerCta() {
             of athletes looking for professional-grade venues and gear in your area.
           </p>
           <div className="owner-cta-actions">
-            <button className="owner-cta-btn-primary">Get Started</button>
+            <button className="owner-cta-btn-primary"
+            onClick={() => router.push('/become-owner')}
+            >Get Started</button>
             <button className="owner-cta-btn-secondary">Learn More</button>
           </div>
         </div>

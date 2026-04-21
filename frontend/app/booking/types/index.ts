@@ -28,6 +28,33 @@ export interface BookingPaymentState {
 }
 
 
+export interface Property {
+    _id: string;
+    title: string;
+    description: string;
+    sportType: string;
+    propertyType: string;
+    address: string;
+    city: string;
+    postalCode?: string;
+    mapsLink?: string;
+    pricePerHour: number;
+    maxPlayers?: number;
+    availableDays: string[];
+    openingTime: string;
+    closingTime: string;
+    images: string[];
+    amenities: string[];
+    status: 'pending' | 'active' | 'inactive';
+    owner: {
+        _id: string;
+        name: string;
+        email: string;
+    } | string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Facility {
     _id: string;
     name: string;

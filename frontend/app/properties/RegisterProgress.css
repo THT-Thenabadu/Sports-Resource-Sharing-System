@@ -1,0 +1,106 @@
+.reg-progress {
+  margin-bottom: 48px;
+}
+
+.reg-progress-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+.reg-step-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #005eb2;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  display: block;
+}
+
+.reg-step-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #001f3f;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+}
+
+.reg-percent {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #43474e;
+}
+
+/* ─── Bar ─────────────────────────────────────────────────── */
+.reg-bar-track {
+  width: 100%;
+  height: 6px;
+  background-color: #e7e8e9;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.reg-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #000613, #005eb2);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* ─── Dots ────────────────────────────────────────────────── */
+.reg-dots {
+  display: flex;
+  gap: 0;
+  justify-content: space-between;
+}
+
+.reg-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.reg-dot-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #e7e8e9;
+  color: #74777f;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.reg-dot--done .reg-dot-circle {
+  background-color: #001f3f;
+  color: #ffffff;
+}
+
+.reg-dot-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #74777f;
+  text-align: center;
+}
+
+.reg-dot--done .reg-dot-label {
+  color: #001f3f;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .reg-dot-label { display: none; }
+  .reg-step-title { font-size: 1.5rem; }
+}

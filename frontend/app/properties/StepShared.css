@@ -1,0 +1,354 @@
+/* ─── Layout ──────────────────────────────────────────────── */
+.step-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  
+  @media (min-width: 1024px) {
+    .step-layout {
+      grid-template-columns: 7fr 5fr;
+    }
+  }
+  
+  .step-form-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  /* ─── Card ────────────────────────────────────────────────── */
+  .step-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid rgba(196,198,207,0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  /* ─── Fields ──────────────────────────────────────────────── */
+  .step-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .step-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  
+  @media (max-width: 600px) {
+    .step-row { grid-template-columns: 1fr; }
+  }
+  
+  .step-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    color: #191c1d;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  
+  .step-input {
+    width: 100%;
+    background-color: #f3f4f5;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #191c1d;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  
+  .step-input:focus {
+    border-bottom-color: #005eb2;
+    background-color: #ffffff;
+  }
+  
+  .step-input::placeholder { color: #74777f; }
+  
+  .step-textarea {
+    resize: none;
+    line-height: 1.6;
+  }
+  
+  /* ─── Select ──────────────────────────────────────────────── */
+  .step-select-wrap {
+    position: relative;
+  }
+  
+  .step-select {
+    width: 100%;
+    appearance: none;
+    background-color: #f3f4f5;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px;
+    padding: 12px 40px 12px 16px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #191c1d;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  
+  .step-select:focus {
+    border-bottom-color: #005eb2;
+    background-color: #ffffff;
+  }
+  
+  .step-select-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #74777f;
+    pointer-events: none;
+  }
+  
+  /* ─── Nav ─────────────────────────────────────────────────── */
+  .step-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 24px;
+  }
+  
+  .step-btn-cancel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Lexend', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #43474e;
+    padding: 12px 0;
+    transition: color 0.2s ease;
+  }
+  
+  .step-btn-cancel:hover { color: #000613; }
+  
+  .step-btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #e7e8e9;
+    border: none;
+    cursor: pointer;
+    font-family: 'Lexend', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #001f3f;
+    padding: 14px 28px;
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .step-btn-back:hover { background-color: #d9dadb; }
+  
+  .step-btn-next {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #000613, #001f3f);
+    border: none;
+    cursor: pointer;
+    font-family: 'Lexend', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    padding: 14px 36px;
+    border-radius: 9999px;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 4px 16px rgba(0,6,19,0.2);
+  }
+  
+  .step-btn-next:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  .step-btn-submit {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #000613, #001f3f);
+    border: none;
+    cursor: pointer;
+    font-family: 'Lexend', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    padding: 16px 48px;
+    border-radius: 9999px;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 8px 24px rgba(0,6,19,0.25);
+    flex: 2;
+    justify-content: center;
+  }
+  
+  .step-btn-submit:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  /* ─── Aside Image ─────────────────────────────────────────── */
+  .step-aside-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .step-aside-img-wrap {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .step-aside-img {
+    width: 100%;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .step-aside-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,6,19,0.9) 0%, rgba(0,6,19,0.2) 50%, transparent 100%);
+  }
+  
+  .step-aside-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(24px);
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    color: #000613;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  
+  .step-aside-text {
+    position: absolute;
+    bottom: 0;
+    padding: 28px;
+  }
+  
+  .step-aside-text h3 {
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  
+  .step-aside-text p {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.6;
+  }
+  
+  /* ─── Aside Info Box ──────────────────────────────────────── */
+  .step-aside-info {
+    background-color: #f3f4f5;
+    border-left: 4px solid #005eb2;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  
+  .step-aside-info h3 {
+    font-family: 'Lexend', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #001f3f;
+    margin-bottom: 8px;
+  }
+  
+  .step-aside-info p {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    color: #43474e;
+    line-height: 1.7;
+  }
+  
+  /* ─── Aside Dark Tips ─────────────────────────────────────── */
+  .step-aside-tips {
+    background-color: #001f3f;
+    border-radius: 12px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .step-aside-tips h3 {
+    font-family: 'Lexend', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 16px;
+  }
+  
+  .step-aside-tips ul {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .step-aside-tips li {
+    display: flex;
+    gap: 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+  }
+  
+  .step-aside-tips li .material-symbols-outlined {
+    color: #a7c8ff;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  
+  .step-aside-orb {
+    position: absolute;
+    bottom: -40px;
+    right: -40px;
+    width: 140px;
+    height: 140px;
+    background-color: #005eb2;
+    border-radius: 50%;
+    opacity: 0.12;
+    filter: blur(32px);
+    pointer-events: none;
+  }

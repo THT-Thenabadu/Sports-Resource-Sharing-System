@@ -1,0 +1,120 @@
+.rej-banner {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    margin: 1rem 2rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    animation: rej-slide-in 0.3s ease;
+  }
+  
+  @keyframes rej-slide-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* ── Rejected (red) ── */
+  .rej-banner--rejected {
+    background: #fff0f0;
+    border-color: #fca5a5;
+  }
+  
+  .rej-banner--rejected .rej-banner-icon {
+    color: #dc2626;
+  }
+  
+  .rej-banner--rejected .rej-banner-title {
+    color: #7f1d1d;
+  }
+  
+  .rej-banner--rejected .rej-banner-desc {
+    color: #991b1b;
+  }
+  
+  /* ── Pending (amber) ── */
+  .rej-banner--pending {
+    background: #fffbeb;
+    border-color: #fcd34d;
+  }
+  
+  .rej-banner--pending .rej-banner-icon {
+    color: #d97706;
+  }
+  
+  .rej-banner--pending .rej-banner-title {
+    color: #78350f;
+  }
+  
+  .rej-banner--pending .rej-banner-desc {
+    color: #92400e;
+  }
+  
+  /* ── Left side ── */
+  .rej-banner-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex: 1;
+  }
+  
+  .rej-banner-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  .rej-banner-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  
+  .rej-banner-desc {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  
+  /* ── Right side ── */
+  .rej-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+  
+  .rej-banner-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #dc2626;
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  
+  .rej-banner-btn:hover { background: #b91c1c; }
+  .rej-banner-btn .material-symbols-outlined { font-size: 1rem; }
+  
+  .rej-banner-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  
+  .rej-banner-close:hover { background: rgba(0,0,0,0.06); }
+  .rej-banner-close .material-symbols-outlined { font-size: 1.2rem; }

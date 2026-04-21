@@ -1,0 +1,55 @@
+@import './StepShared.css';
+
+.pricing-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.pricing-section-title h2 {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #001f3f;
+}
+
+.pricing-section-title .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.pricing-divider {
+  height: 1px;
+  background-color: rgba(196,198,207,0.2);
+}
+
+/* ─── Day Pills ───────────────────────────────────────────── */
+.days-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.day-pill {
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: 1px solid #c4c6cf;
+  background-color: #ffffff;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #43474e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.day-pill:hover {
+  background-color: #e7e8e9;
+}
+
+.day-pill--active {
+  background-color: #001f3f;
+  color: #ffffff;
+  border-color: #001f3f;
+}

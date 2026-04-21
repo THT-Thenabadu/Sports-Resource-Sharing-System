@@ -18,7 +18,7 @@ const features = [
       </svg>
     ),
     title: 'Verified Owners',
-    description: 'Every facility and host undergoes a rigorous verification process.',
+    description: 'Every property and host undergoes a rigorous verification process.',
   },
   {
     icon: (

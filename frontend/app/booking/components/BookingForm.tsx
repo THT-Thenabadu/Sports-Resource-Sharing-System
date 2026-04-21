@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Facility, TimeSlot, CreateBookingResponse, PaymentMethod } from '../types';
+import { Property, TimeSlot, CreateBookingResponse, PaymentMethod } from '../types';
 import { createBookingWithHold } from '../services/bookingApi';
 
 interface BookingFormProps {
-    facility: Facility;
+    facility: Property;
     date: string;
     slot: TimeSlot;
     onSuccess: (payload: CreateBookingResponse) => void;
@@ -35,7 +35,7 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
                 slot
             }));
 
-            setTimeout(() => router.push('/login?returnUrl=/booking'), 2000);
+            setTimeout(() => router.push('/login?returnUrl=/booking'), 3000);
         } else {
             setAuthToken(token);
         }
@@ -49,7 +49,7 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
         return `${hour12}:${m.toString().padStart(2, '0')} ${ampm}`;
     }
 
-    const price = facility.rates?.perHour ?? 0;
+    const price = facility.pricePerHour ?? 0;
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -104,11 +104,11 @@ export default function BookingForm({ facility, date, slot, onSuccess, onCancel 
                 <div className="space-y-4 relative z-10">
                     <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl">
                         <span className="text-gray-300 text-sm">Facility</span>
-                        <span className="font-semibold text-white">{facility.name}</span>
+                        <span className="font-semibold text-white">{facility.title}</span>
                     </div>
                     <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl">
                         <span className="text-gray-300 text-sm">Institution</span>
-                        <span className="font-semibold text-white">{facility.institution}</span>
+                        <span className="font-semibold text-white">{facility.city}</span>
                     </div>
                     <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl">
                         <span className="text-gray-300 text-sm">Date & Time</span>

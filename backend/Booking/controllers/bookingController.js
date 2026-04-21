@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Facility = require('../models/Facility');
+const Property = require('../../models/Property');
 
 const PENDING_PAYMENT_WINDOW_MINUTES = 10;
 const HOLD_MINUTES = 5;
@@ -63,19 +64,19 @@ const getAvailableSlots = async (req, res) => {
         await expireStalePendingBookings();
         const { facilityId, date } = req.params;
 
-        const facility = await Facility.findById(facilityId);
+        const facility = await Property.findById(facilityId);
         if (!facility) {
             return res.status(404).json({ message: 'Facility not found' });
         }
 
-        if (facility.status === 'under_repair') {
-            return res.status(400).json({ message: 'Facility is currently under repair' });
+        if (facility.status !== 'active') {
+            return res.status(400).json({ message: 'Property is not active' });
         }
 
         const allSlots = generateSlots(
-            facility.operatingHours.open,
-            facility.operatingHours.close,
-            facility.slotDuration
+            facility.openingTime || '06:00',
+            facility.closingTime || '22:00',
+            1 // Default slot duration for properties to 1 hour
         );
 
         const bookingDate = new Date(date);
@@ -116,10 +117,10 @@ const getAvailableSlots = async (req, res) => {
         res.json({
             facility: {
                 id: facility._id,
-                name: facility.name,
-                type: facility.type,
-                institution: facility.institution,
-                slotDuration: facility.slotDuration
+                name: facility.title,
+                type: facility.propertyType,
+                institution: facility.city,
+                slotDuration: 1
             },
             date,
             slots: slotsWithStatus
@@ -143,12 +144,12 @@ const createBooking = async (req, res) => {
         const { facilityId, date, startTime, endTime, paymentMethod, totalAmount, shareEnabled, totalShares } = req.body;
         const { _id: userId, name: userName } = req.user; // Get user from `protect` middleware
 
-        const facility = await Facility.findById(facilityId);
+        const facility = await Property.findById(facilityId);
         if (!facility) {
             return res.status(404).json({ message: 'Facility not found' });
         }
-        if (facility.status === 'under_repair') {
-            return res.status(400).json({ message: 'Facility is currently under repair' });
+        if (facility.status !== 'active') {
+            return res.status(400).json({ message: 'Property is not active' });
         }
 
         const bookingDate = new Date(date);
@@ -185,9 +186,9 @@ const createBooking = async (req, res) => {
             totalAmount,
             shareEnabled,
             totalShares: shareEnabled ? totalShares : 0,
-            facilityName: facility.name,
-            facilityType: facility.type,
-            institution: facility.institution,
+            facilityName: facility.title,
+            facilityType: facility.propertyType,
+            institution: facility.city,
             status: 'pending_payment',
             paymentStatus: 'unpaid',
             holdExpiresAt,
@@ -574,7 +575,7 @@ const blockSlot = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized to block slots' });
         }
 
-        const facility = await Facility.findById(facilityId);
+        const facility = await Property.findById(facilityId);
         if (!facility) {
             return res.status(404).json({ message: 'Facility not found' });
         }
@@ -606,9 +607,9 @@ const blockSlot = async (req, res) => {
             endTime,
             paymentMethod: 'onsite',
             totalAmount: 0,
-            facilityName: facility.name,
-            facilityType: facility.type,
-            institution: facility.institution,
+            facilityName: facility.title,
+            facilityType: facility.propertyType,
+            institution: facility.city,
             status: 'blocked',
             paymentStatus: 'paid', // Mark paid so it's irrelevant
             holdExpiresAt: new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000) // 100 years into future

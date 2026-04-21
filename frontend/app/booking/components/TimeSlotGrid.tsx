@@ -5,27 +5,27 @@ import { TimeSlot, SlotResponse } from '../types';
 import { getAvailableSlots } from '../services/bookingApi';
 
 interface TimeSlotGridProps {
-    facilityId: string;
-    facilityName: string;
+    propertyId: string;
+    propertyName: string;
     date: string;
     onSlotSelect: (slot: TimeSlot) => void;
     selectedSlot?: TimeSlot | null;
 }
 
-export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSelect, selectedSlot }: TimeSlotGridProps) {
+export default function TimeSlotGrid({ propertyId, propertyName, date, onSlotSelect, selectedSlot }: TimeSlotGridProps) {
     const [slotData, setSlotData] = useState<SlotResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
         loadSlots();
-    }, [facilityId, date]);
+    }, [propertyId, date]);
 
     async function loadSlots() {
         try {
             setLoading(true);
             setError('');
-            const data = await getAvailableSlots(facilityId, date);
+            const data = await getAvailableSlots(propertyId, date);
             setSlotData(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load time slots');
@@ -95,7 +95,7 @@ export default function TimeSlotGrid({ facilityId, facilityName, date, onSlotSel
                     <span className="text-xl">ℹ️</span>
                 </div>
                 <p className="text-sm text-blue-900 font-medium">
-                    <strong className="text-[#112240] text-base">{facilityName}</strong> operates using{' '}
+                    <strong className="text-[#112240] text-base">{propertyName}</strong> operates using{' '}
                     <span className="px-2.5 py-1 rounded-md bg-blue-200/70 text-blue-900 font-extrabold mx-1 shadow-sm">{slotData.facility.slotDuration}-HOURS</span>{' '}
                     time slots.
                 </p>
