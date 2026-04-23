@@ -154,7 +154,7 @@ export default function StepPricing({ data, onChange, onNext, onBack }) {
       {/* Right aside unchanged */}
       <div className="step-aside-col">
         <div className="step-aside-img-wrap">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqCX4EHyHxoPICCAB3-2WP5XQozHfejpeN-y8zbiXDUN7MEbV3tQTvWzR5ZnVLT5BBa5oQdQ-wTf-tz4K0d8gTAeiiYUnHEELnxa102XI-YXDV6rVCEx4Sr5udWUSbip2_M8yaUkhDnfNZaOT-ld6upsCqAwcwr84ptHe56FWSVvw8UdCIozfI-NaFRRXL5OCdo4zvv_FgOMZCXpq09nWjFXLFT3u-Dbiik1wdpwj3E9jsgfp5aCN9QLBqisFU4kvADB90TtutCCU" alt="Court" className="step-aside-img" style={{ aspectRatio: '4/3' }} />
+          <img src="https://images.unsplash.com/photo-1540747913346-19e32fc3e666" alt="Court" className="step-aside-img" style={{ aspectRatio: '4/3' }} />
           <div className="step-aside-overlay" />
           <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
             <div style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, padding: '14px 16px' }}>

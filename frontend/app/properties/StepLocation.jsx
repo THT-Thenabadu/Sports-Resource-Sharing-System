@@ -105,7 +105,7 @@ export default function StepLocation({ data, onChange, onNext, onBack }) {
       {/* Right aside unchanged */}
       <div className="step-aside-col">
         <div className="step-aside-img-wrap">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAK86j9J2Cmh73kF7lzUP6otHpA817D7l1b17XWXPeSUEdF9pT2v4hmk9UpMMREwoPVcmkx6djlu6dVnO5ChpmWBnA62_D2fh2GCl0v_VOUya-eecFmE-bin0nUMetnSRp4NSeZr5-3rbKzx1mCUK88jAk9B5BqNjYTxPubOw6_ciM1f9UEerKMkvRS3V3v3UL6fFXwB23XsvAGyV4HRgD8rE_H4i5vi4PtYOF03k_4wzwoP8ACLpjwP25oJ1DmvqoiQueFWtaGRRo" alt="Arena aerial" className="step-aside-img" style={{ aspectRatio: '4/3' }} />
+          <img src="https://images.unsplash.com/photo-1540747913346-19e32fc3e666" alt="Arena aerial" className="step-aside-img" style={{ aspectRatio: '4/3' }} />
           <div className="step-aside-overlay" />
           <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
             <div style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, padding: '14px 16px' }}>

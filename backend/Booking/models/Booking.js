@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// <<<<<<< HEAD
 const bookingSchema = new mongoose.Schema(
     {
         facilityId: {
@@ -17,11 +18,19 @@ const bookingSchema = new mongoose.Schema(
         date: { type: Date, required: true },
         startTime: { type: String, required: true },
         endTime: { type: String, required: true },
+        guestCount: {
+            type: Number,
+            default: 0
+        }, 
+        accessCode: {
+            type: String
+        },
+        
 
         // Renamed from bookingStatus for consistency
         status: {
             type: String,
-            enum: ['pending_payment', 'confirmed', 'expired', 'cancelled', 'blocked'],
+            enum: ['pending_payment', 'confirmed', 'expired', 'cancelled', 'blocked','checkedin', 'checkedout'],
             default: 'pending_payment',
         },
         paymentMethod: {
@@ -79,3 +88,66 @@ bookingSchema.index({ facilityId: 1, date: 1, status: 1 });
 bookingSchema.index({ status: 1, holdExpiresAt: 1 });
 
 module.exports = mongoose.model('Booking', bookingSchema);
+// =======
+// const bookingSchema = new mongoose.Schema({
+//     facilityId: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: 'Facility',
+//         required: [true, 'Facility ID is required']
+//     },
+//     facilityName: {
+//         type: String,
+//         required: true
+//     },
+//     facilityType: {
+//         type: String,
+//         required: true
+//     },
+//     institution: {
+//         type: String,
+//         required: true
+//     },
+//     // TODO: Replace with actual user ID from auth system when integrated
+//     userId: {
+//         type: String,
+//         required: [true, 'User ID is required']
+//     },
+//     userName: {
+//         type: String,
+//         required: [true, 'User name is required'],
+//         trim: true
+//     },
+//     date: {
+//         type: Date,
+//         required: [true, 'Booking date is required']
+//     },
+//     startTime: {
+//         type: String,  // Format: "HH:MM" (24hr), e.g. "09:00"
+//         required: [true, 'Start time is required']
+//     },
+//     endTime: {
+//         type: String,  // Format: "HH:MM" (24hr), e.g. "10:00"
+//         required: [true, 'End time is required']
+//     },
+//     guestCount: {
+//         type: Number,
+//         default: 0
+//     },
+//     status: {
+//         type: String,
+//         enum: ['pending', 'confirmed', 'checkedin', 'checkedout', 'cancelled'],
+//         default: 'pending'
+//     },
+//     accessCode: {
+//         type: String
+//     }
+// }, {
+//     timestamps: true
+// });
+//
+// // Index for fast overlap queries — similar to a composite index in relational DBs
+// bookingSchema.index({ facilityId: 1, date: 1, status: 1 });
+//
+// module.exports = mongoose.model('Booking', bookingSchema);
+//
+// >>>>>>> origin/feature-security01

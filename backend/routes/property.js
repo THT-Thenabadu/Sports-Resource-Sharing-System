@@ -43,7 +43,7 @@ const upload = multer({
 router.post('/register', verifyToken, upload.array('images', 5), async (req, res) => {
   try {
     const {
-      title, description, sportType, propertyType,
+      title, institution, description, sportType, propertyType,
       address, city, postalCode, mapsLink,
       pricePerHour, maxPlayers, availableDays,
       openingTime, closingTime, amenities
@@ -55,6 +55,7 @@ router.post('/register', verifyToken, upload.array('images', 5), async (req, res
     const property = new Property({
       owner: req.user.id,
       title,
+      institution: institution || req.user.institution || 'None',
       description,
       sportType,
       propertyType,
@@ -93,10 +94,39 @@ router.get('/my-properties', verifyToken, async (req, res) => {
   }
 });
 
+// ─── Owner Update Availability State ──────────────────────
+router.patch('/:propertyId/availability', verifyToken, async (req, res) => {
+  try {
+    const { availabilityState } = req.body;
+    if (!['available', 'not_available'].includes(availabilityState)) {
+      return res.status(400).json({ message: 'Invalid availability state.' });
+    }
+
+    const property = await Property.findOne({
+      _id: req.params.propertyId,
+      owner: req.user.id
+    });
+
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found or unauthorized.' });
+    }
+
+    property.availabilityState = availabilityState;
+    await property.save();
+
+    res.status(200).json({
+      message: `Property is now ${availabilityState === 'available' ? 'available' : 'not available'}.`,
+      property
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ─── Get All Properties (public) ─────────────────────────
 router.get('/', async (req, res) => {
   try {
-    const properties = await Property.find({ status: 'active' })
+    const properties = await Property.find({ status: { $in: ['active', 'pending'] } })
       .populate('owner', 'name email')
       .sort({ createdAt: -1 });
     res.status(200).json(properties);

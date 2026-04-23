@@ -62,6 +62,76 @@ export default function Ctabanner() {
 							{/*<span className="material-symbols-outlined">arrow_forward</span>*/}
 						</Link>
 					</div>
+{/*=======*/}
+{/*import { useEffect, useState } from 'react';*/}
+{/*import { useRouter } from 'next/navigation';*/}
+{/*import '../component-styles/Ctabanner.css';*/}
+
+{/*const fallbackArenas = [*/}
+{/*  {*/}
+{/*    id: 1,*/}
+{/*    name: 'Grand Central Pitch',*/}
+{/*    price: 45,*/}
+{/*    location: 'Downtown Sports Hub',*/}
+{/*    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDc1_2DxD3_sUb-RxEaF9u0-xh7O8OjfCgvWNAlVquNtFqUQjTcBmKVAUUqLG9rRvheZaZUo6cB4NBpsjTwkIKmU58SSWSDQxd7CKyCVC6T2rZVUYDt9PfJlHmpm5g1_gYz-igTsFZvPaG-nowlu-Rk282p2ZTQU97coVIVGVTsQuI3Jn3K-seO3OZZr7UQNsdCZDtwAZAb2EDcmFb30JeaMojb1ZHaSsquXwX60mBtvRDKZ3ZkT_JfHSKcnOL-kAWsYJtbYLzxXAQ',*/}
+{/*    verified: true,*/}
+{/*  },*/}
+{/*  {*/}
+{/*    id: 2,*/}
+{/*    name: 'Skyline Tennis Academy',*/}
+{/*    price: 60,*/}
+{/*    location: 'North Wing Plaza',*/}
+{/*    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB5sVFuETOOxOaM4Di6w_lCcEjRTGwEKcAbDT8e5pDW7rro6U0nLatDKrkYKTFucd0ewYUiAQJiLElXlHXVIUcCyTofsR_kMhx3TeCADFsUdKWMFxOZ5kTi4x7W6MtR2vfpQ0ffQEvqdw4wvEKGGacMHzDrdbc5ORasB4cw10NPjxISbYB_vhLtB_OswkdTSHDrC6gF2bgoM0W6E9ovzSdQeLH7USoYksLmTLAGbIdfQbq59h7r4ppOnyBl6NhaJGgBovyp3Wb06iY',*/}
+{/*    verified: true,*/}
+{/*  },*/}
+{/*  {*/}
+{/*    id: 3,*/}
+{/*    name: 'The Hoop Sanctuary',*/}
+{/*    price: 40,*/}
+{/*    location: 'West End Precinct',*/}
+{/*    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBqKiFW_xsCewhJGqWOhAsvppp8hfpmOzBbUWNbrP_HlmV13KQasITk7JnuJXqOmniT6kCXAS1KM3wkod-OZ76qHBpPGI74ObBZCjUrbStEctxVeFzxgE_umf4gBe76OWm9ZTukHh2naBMplSedFVLgk_VuKC7ejqWb9SnlJ1Xh3Z4b0zZ1pmWTWgq8vTH-so14qSOvoPpk4LX1xCrxQwOU21Wux-EhdzZ2YVdSZsENhYYpODe6id-DN5rrxcMi8jiCG_Cy-FsmjZ0',*/}
+{/*    verified: true,*/}
+{/*  },*/}
+{/*];*/}
+
+{/*export default function Ctabanner() {*/}
+{/*  const [arenas, setArenas] = useState(fallbackArenas);*/}
+{/*  const [loading, setLoading] = useState(true);*/}
+{/*  const router = useRouter();*/}
+
+{/*  useEffect(() => {*/}
+{/*    fetch('http://localhost:8000/api/properties')*/}
+{/*      .then(res => res.json())*/}
+{/*      .then(data => {*/}
+{/*        if (data && data.length > 0) {*/}
+{/*          const mapped = data.slice(0, 6).map(p => {*/}
+{/*            const displayLocation = [p.city, p.address].filter(Boolean).join(' - ');*/}
+{/*            const imageUrl = p.images && p.images.length > 0*/}
+{/*              ? `http://localhost:8000${p.images[0]}`*/}
+{/*              : fallbackArenas[0].image; // default image fallback*/}
+{/*            return {*/}
+{/*              id: p._id,*/}
+{/*              name: p.title,*/}
+{/*              price: p.pricePerHour,*/}
+{/*              location: displayLocation || 'Location TBD',*/}
+{/*              image: imageUrl,*/}
+{/*              verified: true*/}
+{/*            };*/}
+{/*          });*/}
+{/*          setArenas(mapped);*/}
+{/*        }*/}
+{/*        setLoading(false);*/}
+{/*      })*/}
+{/*      .catch(err => {*/}
+{/*        console.error("Failed to fetch properties:", err);*/}
+{/*        setLoading(false);*/}
+{/*      });*/}
+{/*  }, []);*/}
+
+{/*  return (*/}
+{/*    <section className="arenas-section">*/}
+{/*      <div className="arenas-container">*/}
+{/*>>>>>>> origin/feature-security01*/}
 
 					<div className="arenas-grid">
 						{arenas.map((arena) => (
@@ -112,6 +182,7 @@ export default function Ctabanner() {
 				</div>
 			</section>
 
+
 			{/* ─── CTA Banner Section ───────────────────────── */}
 			<section className="cta-banner" data-purpose="primary-actions">
 				<div className="cta-grid">
@@ -127,4 +198,5 @@ export default function Ctabanner() {
 			</section>
 		</>
 	);
+
 }

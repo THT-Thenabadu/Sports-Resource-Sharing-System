@@ -11,8 +11,8 @@ export default function RejectionBanner() {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-      // Only check for customers — owners and admins don't need this
-      if (!token || user.role === 'owner' || user.role === 'admin') return;
+      // Only check for customers — owners, admins, and security don't need this
+      if (!token || user.role === 'owner' || user.role === 'admin' || user.role === 'security' || user.dashboard === 'security') return;
 
       try {
         const res = await fetch('http://localhost:8000/api/owner-application/my-status', {
@@ -22,6 +22,8 @@ export default function RejectionBanner() {
         if (!res.ok) return; // no application found, that's fine
 
         const data = await res.json();
+
+        if (data.status === 'none' || !data._id) return;
 
         // Check if user already dismissed this banner this session
         const dismissedKey = `banner-dismissed-${data._id}`;

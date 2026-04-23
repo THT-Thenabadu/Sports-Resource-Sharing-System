@@ -7,8 +7,12 @@
  */
 
 const mongoose = require('mongoose');
+// <<<<<<< HEAD
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') }); // Get .env from backend folder
+// =======
+// require('dotenv').config();
+// >>>>>>> origin/feature-security01
 
 const Facility = require('../models/Facility');
 
@@ -89,7 +93,11 @@ const sampleFacilities = [
 
 async function seedFacilities() {
     try {
+// <<<<<<< HEAD
         await mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URI);
+// =======
+//         await mongoose.connect(process.env.MONGO_URI);
+// >>>>>>> origin/feature-security01
         console.log('✅ MongoDB Connected');
 
         // Clear existing facilities
@@ -113,3 +121,4 @@ async function seedFacilities() {
 }
 
 seedFacilities();
+

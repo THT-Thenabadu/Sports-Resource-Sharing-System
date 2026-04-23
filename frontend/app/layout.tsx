@@ -26,6 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+// <<<<<<< HEAD
     <html lang="en">
       <head>
         {/* ✅ Add this */}
@@ -36,6 +37,12 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+// =======
+//     <html lang="en" suppressHydrationWarning>
+//       <body
+//         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+//         suppressHydrationWarning
+//  >>>>>>> origin/feature-security01
       >
          <AuthRefresh />
         <Navbar />

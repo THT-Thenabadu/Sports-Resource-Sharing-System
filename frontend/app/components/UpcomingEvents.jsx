@@ -10,7 +10,7 @@ const events = [
         location: 'Grand Central Arena, Pitch A',
         tag: 'Main Event',
         featured: true,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtLq6IbC_5vyKU3V55KvGJMI_nPek08L6KpvO_p_8TYWVu3nVdYEvNoe9GKEiqScVqHM7z-A-tXiPaxijG0JeRh3HQYcgm6W9RhU1_LzbnDiCMxyWFfqOJ7qltins8otnxjhiUqNNzvfo9NdAfXqFG9Nq9ao-nJ4i2y5rj6k3_impWS47xe9yiimDupXq4Jm2NOYraqJvW80J4XHFzk3G_x13pVadHNDuZCEHHPcac1F5L1yH6H-cRt1PHkCELgScz0LfevgUISxM',
+        image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55',
     },
     {
         id: 2,
@@ -19,7 +19,7 @@ const events = [
         time: '10:00 AM',
         location: 'Skyline Academy',
         featured: false,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBPJSUGPSJL9sgvNyxtv1pSHIi98_K_CLUEwANrSD9J3k5jcyIjFm1zPCFeXuPuWkGll8kLge7HCifaotbTlZdsXaa-05Ycjc1K4j1i7G76SFohwBpCXOwCnwO-d1rymTat_NJvd2fM3ZWJRB_9wRxmYMjyL24Y0_RVLUe3Kl2bEVM7vzBDVkXh1Lxekw_0-xsXV9AIiqsmYEvr250VcUVUgClC7YvfhuFEUC9QKXlOHA8K191qZdoWwZHPlETBhyRayEFS_lgcl60',
+        image: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0',
     },
     {
         id: 3,
@@ -28,7 +28,7 @@ const events = [
         time: '08:30 AM',
         location: 'Olympic Grounds',
         featured: false,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsxWr0lZmFi3z_FShJYYQzh40op0OH7U4RcTpmFJQWjNdS-9MnmQ02ZIhyJIvCn5Jxc9gbawt1KvqDrDL2xq5U9k1fITa3y_cX5ThimPv0Kb4nnCEkjGySOOUwMnXkRWgot894y9mW7JRxoTXqFG9Nq9ao-nJ4i2y5rj6k3_impWS47xe9yiimDupXq4Jm2NOYraqJvW80J4XHFzk3G_x13pVadHNDuZCEHHPcac1F5L1yH6H-cRt1PHkCELgScz0LfevgUISxM',
+        image: 'https://images.unsplash.com/photo-1540747913346-19e32fc3e666',
     },
 ];
 

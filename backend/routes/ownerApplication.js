@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const OwnerApplication = require('../models/OwnerApplication');
 const User = require('../models/User');
 const isAdmin = require('../middleware/isAdmin');
+const { ensureOwnerSecurityCredentials } = require('../utils/securityCredentials');
 
 // ─── Verify Token Middleware ──────────────────────────────
 const verifyToken = (req, res, next) => {
@@ -103,7 +104,12 @@ router.patch('/approve/:id', isAdmin, async (req, res) => {
     await application.save();
 
     // ✅ Update user role to owner
-    await User.findByIdAndUpdate(application.user, { role: 'owner' });
+    const user = await User.findById(application.user);
+    if (user) {
+      user.role = 'owner';
+      await user.save();
+      await ensureOwnerSecurityCredentials(user);
+    }
 
     res.status(200).json({ message: 'Application approved. User is now an owner.' });
   } catch (error) {
@@ -130,7 +136,7 @@ router.patch('/reject/:id', isAdmin, async (req, res) => {
 router.get('/my-status', verifyToken, async (req, res) => {
   try {
     const application = await OwnerApplication.findOne({ user: req.user.id });
-    if (!application) return res.status(404).json({ message: 'No application found' });
+    if (!application) return res.status(200).json({ status: 'none' });
     res.status(200).json(application);
   } catch (error) {
     res.status(500).json({ error: error.message });

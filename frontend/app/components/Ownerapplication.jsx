@@ -239,9 +239,9 @@ export default function OwnerApplication() {
             <div className="oa-social-proof">
               <div className="oa-social-proof-top">
                 <div className="oa-avatars">
-                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgAlWF4JUnEBsolNBKwbhIveELeaEPZ8WQv_1VecAWBwNpTL8KHaee7MXUyYVBdK03XjuurC5Gxtuja_DsRFKLYYza3TJ1-pG1dK1fPe8aWb0eVzaVtooKsg_ZDFIWPqLQAeLrGpUHrLC5FbzN4K0IXek2ayPs_bNhcfBmViFairOeKroTRDrCZfiFA4OIM9nswug6RbhQmjNEvf-xOCFOEM_YEawUUeQuiCq4SplMGE_UBYPpHaJ8zfpSoj_yYLJgC_ZPJbR0QPM" alt="partner" className="oa-avatar" />
-                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3JsIX-hJbvrse_eVrdYpo297xAEirEAZnPcj5D2gLddb7FGDSShkocCeCcGWwTje9wx2Q0IIKqz4kxnsE6W50phR6Hka7N3VLLx1aaYxEoUi8d_g6n0kcbytOvRLtHAd8fP-FJiTGDSShkocCeCcGWwTje9wx2Q0IIKqz4kxnsE6W50phR6Hka7N3VLLx1aaYxEoUi8d_g6n0kcbytOvRLtHAd8fP-FJiTGjUiS4DUC9gqsxDRATEeblck3Z4K0b4vRa4gpRtOxhFVUP01zIK7J-JaVfBugrOwvpQK4u7EJdLdXfOPXtoharPaYc7HlYO_tE-BiBRUwHvmVPs" alt="partner" className="oa-avatar" />
-                  <div className="oa-avatar oa-avatar--count">99+</div>
+                  <img src="https://images.unsplash.com/photo-1540747913346-19e32fc3e666" alt="partner" className="oa-avatar" />
+                  <img src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0" alt="partner" className="oa-avatar" />
+                  <div className="oa-avatar-more">1k+</div>
                 </div>
                 <span className="oa-social-label">Recent Signups</span>
               </div>

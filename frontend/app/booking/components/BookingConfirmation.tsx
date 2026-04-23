@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 interface BookingConfirmationProps {
     bookingId: string;
     onNewBooking: () => void;
@@ -7,6 +9,26 @@ interface BookingConfirmationProps {
 }
 
 export default function BookingConfirmation({ bookingId, onNewBooking, onViewBookings }: BookingConfirmationProps) {
+    const [accessCode, setAccessCode] = useState<string>('');
+
+    useEffect(() => {
+        const fetchBooking = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data && data.accessCode) {
+                    setAccessCode(data.accessCode);
+                }
+            } catch (err) {
+                console.error("Failed to fetch booking details", err);
+            }
+        };
+        fetchBooking();
+    }, [bookingId]);
+
     return (
         <div className="text-center py-10 max-w-lg mx-auto animate-in zoom-in-95 duration-500">
             <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-50 border-4 border-green-100 mb-8 shadow-sm">
@@ -33,6 +55,13 @@ export default function BookingConfirmation({ bookingId, onNewBooking, onViewBoo
                         <p className="text-gray-300 text-sm leading-relaxed">
                             A digital entry pass is generated for your booking. Please present it or your matching Booking ID at the security gate upon arrival. Use <strong className="text-white font-semibold">My Bookings</strong> to view details.
                         </p>
+                        {accessCode ? (
+                            <a href={`/booking/entry-pass?token=${accessCode}`} className="mt-3 inline-block font-semibold hover:underline" style={{ color: '#ffffff' }}>
+                                Click here to get your entry pass
+                            </a>
+                        ) : (
+                            <p className="mt-3 font-semibold animate-pulse" style={{ color: '#ffffff' }}>Generating entry pass...</p>
+                        )}
                     </div>
                 </div>
             </div>

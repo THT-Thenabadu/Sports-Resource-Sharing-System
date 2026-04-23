@@ -6,9 +6,12 @@ export default function StepBasicInfo({ data, onChange, onNext, onCancel }) {
 
   const validate = () => {
     const newErrors = {};
-    if (!data.title.trim()) newErrors.title = 'Property title is required';
+    if (!data.title?.trim()) newErrors.title = 'Property title is required';
     else if (data.title.trim().length < 5) newErrors.title = 'Title must be at least 5 characters';
-    if (!data.description.trim()) newErrors.description = 'Description is required';
+
+    if (!data.institution?.trim()) newErrors.institution = 'Institution name is required';
+
+    if (!data.description?.trim()) newErrors.description = 'Description is required';
     else if (data.description.trim().length < 20) newErrors.description = 'Description must be at least 20 characters';
     if (!data.sportType) newErrors.sportType = 'Please select a sport type';
     if (!data.propertyType) newErrors.propertyType = 'Please select a property type';
@@ -40,6 +43,18 @@ export default function StepBasicInfo({ data, onChange, onNext, onCancel }) {
               onChange={e => { onChange('title', e.target.value); setErrors(p => ({ ...p, title: '' })); }}
             />
             {errors.title && <p className="step-error">{errors.title}</p>}
+          </div>
+
+          <div className="step-field">
+            <label className="step-label">Institution / Organization Name</label>
+            <input
+              className={`step-input ${errors.institution ? 'step-input--error' : ''}`}
+              type="text"
+              placeholder="e.g. Skyline University, City Council"
+              value={data.institution || ''}
+              onChange={e => { onChange('institution', e.target.value); setErrors(p => ({ ...p, institution: '' })); }}
+            />
+            {errors.institution && <p className="step-error">{errors.institution}</p>}
           </div>
 
           <div className="step-field">
@@ -113,7 +128,7 @@ export default function StepBasicInfo({ data, onChange, onNext, onCancel }) {
       {/* Right aside unchanged */}
       <div className="step-aside-col">
         <div className="step-aside-img-wrap">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoGxFiNYgSRTrSs-mDzyYAsgDY24lYvNyrIsHiBzmmjRK6FyiBiHDOt8DUYI_8IZPCMnt5QmuFiT8wGpXKGhMGKkDgrlk7hro0pKvf9ikI4_YUcRIbMj6xTZSguRoKncTWHKtY9nSV0xUoCWMJac34GLnya3o5Tbt9G9sDSmS07YLQBE-aJCA7xm5wSJ_EbF84caRbHFdor6rR3kXVHSeJzq2_oQ2LLm9pSrn4ahcaqL4-RyFO8c8TtWZnSYYOLbRiKHlZO0_XEW8" alt="Stadium" className="step-aside-img" />
+          <img src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0" alt="Stadium" className="step-aside-img" />
           <div className="step-aside-overlay" />
           <div className="step-aside-badge">
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", color: '#005eb2', fontSize: 14 }}>verified</span>

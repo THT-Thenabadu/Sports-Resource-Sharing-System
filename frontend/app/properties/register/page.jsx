@@ -82,7 +82,7 @@ export default function RegisterPropertyPage() {
   
       if (res.ok) {
         alert('Property submitted for review!');
-        router.push('/');
+        router.push('/dashboard/owner');
       } else {
         alert(data.message || 'Something went wrong');
       }

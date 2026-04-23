@@ -16,7 +16,7 @@ export default function AdminSidebar() {
             {/* Brand */}
             <div className="sidebar-brand">
                 <div className="sidebar-logo">
-                    <span className="material-symbols-outlined">sports_score</span>
+                    <span style={{ fontSize: '24px', fontWeight: '900', color: '#fff', fontStyle: 'italic' }}>S</span>
                 </div>
                 <div>
                     <h1 className="sidebar-title">Sportek</h1>
@@ -32,7 +32,6 @@ export default function AdminSidebar() {
                         href={item.href}
                         className={`sidebar-link ${item.active ? 'sidebar-link--active' : ''}`}
                     >
-                        <span className="material-symbols-outlined">{item.icon}</span>
                         <span>{item.label}</span>
                     </Link>
                 ))}
@@ -42,7 +41,7 @@ export default function AdminSidebar() {
             <div className="sidebar-profile">
                 <div className="sidebar-profile-card">
                     <img
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsMCAPF-OJPDXncdl9JtphJLrLeAEmgBV5HFO_AfNmmGSQh6nzA1N57XkqsSX_UFh4nNQ63e03R9yJiyGBV1v9aEKVsT9oFnfosEX5yZprgRudu_fbDxPU1g_Ts-8h9moI5HHv54XWG7hWqq2dOhjVypIcX-gmr03HTkJ2o_JvTpJ1aS1ZcduBFB17kW9adoRpb55IazrfH9CBk4p6HhziyY3rndwM1CJuQeSoKEpViPFLBQCn2IyiZS0mVIvNHiltWNKO4Lhe8eo"
+                        src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0"
                         alt="Admin"
                         className="sidebar-avatar"
                     />

@@ -6,7 +6,7 @@ const Hero = () => {
       {/* Background */}
       <div className="hero-bg">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6xxoeKGt2JLvpB2t_XaUxpx-MwT5yvTxIJMhj3a_2vkgjpo2CdSRtR09VXRa_XCN5SqLypkj4laEV_xrP2rgEIC0urLDVPW4wQEBABX7VEDU4XBZ8BnisYRrrvYv6NAZ5rQWHPRoSrEG9Lh5tqjAxFYJI7CcbnZJaGYlubogqzr7FPjr76vN6n_s6w2FspW3Xn_ODTdUOchfMPLK6XygszRixg6kLOIBLmHjhgyu2dBzcyiWqySkC-Q96DuZTL04eK0PDmnIdKPU"
+          src="https://images.unsplash.com/photo-1540747913346-19e32fc3e666"
           alt="Modern Sports Facility"
           className="hero-bg-img"
         />
