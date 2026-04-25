@@ -31,6 +31,7 @@ export interface BookingPaymentState {
 export interface Property {
     _id: string;
     title: string;
+    institution?: string;
     description: string;
     sportType: string;
     propertyType: string;

@@ -1,4 +1,6 @@
 'use client';
+import {useState} from "react";
+import {useEffect} from "react";
 
 interface BookingCalendarProps {
     selectedDate: string;
@@ -14,20 +16,26 @@ export default function BookingCalendar({ selectedDate, onDateSelect, facilityIn
         return `${year}-${month}-${day}`;
     };
 
-    let maxDays = 5;
-    if (typeof window !== 'undefined') {
-        try {
-            const userStr = localStorage.getItem('user');
-            if (userStr && facilityInstitution) {
-                const user = JSON.parse(userStr);
-                if (user.institution && user.institution.toLowerCase() === facilityInstitution.toLowerCase()) {
-                    maxDays = 7;
+    const [maxDays, setMaxDays] = useState<number>(5);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const userStr = localStorage.getItem('user');
+                if (userStr && facilityInstitution) {
+                    const user = JSON.parse(userStr);
+                    if (
+                        user.institution && 
+                        user.institution.trim().toLowerCase() === facilityInstitution.trim().toLowerCase()
+                    ) {
+                        setMaxDays(7);
+                    }
                 }
+            } catch (e) {
+                console.error("Could not parse user from local storage", e);
             }
-        } catch (e) {
-            console.error("Could not parse user from local storage", e);
         }
-    }
+    }, [facilityInstitution]);
 
     // Get today's date in local YYYY-MM-DD format for the min attribute
     const today = getLocalDateString(new Date());

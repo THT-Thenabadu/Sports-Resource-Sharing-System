@@ -221,11 +221,12 @@ export default function BookingPage() {
                             />
                         )}
 
-                        {currentStep === 'select-date' && (
+                        {currentStep === 'select-date' && selectedFacility && (
                             <div className="space-y-8">
                                 <BookingCalendar
                                     selectedDate={selectedDate}
                                     onDateSelect={handleDateSelect}
+                                    facilityInstitution={selectedFacility.institution}
                                 />
                                 {!selectedDate && (
                                     <div className="text-center text-sm font-semibold text-red-500 bg-red-50 border border-red-200 rounded-lg p-3">

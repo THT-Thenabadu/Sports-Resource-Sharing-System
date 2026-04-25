@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Property } from '../types';
 import { getProperties } from '../services/bookingApi';
+import { getFacilities } from '../services/bookingApi';
 
 // Map facility type to emoji icon
 const typeIcons: Record<string, string> = {
@@ -70,6 +71,7 @@ export default function FacilitySelector({ onSelect, selectedFacilityId }: Facil
 
     // Apply filters
     const filtered = properties.filter(p => {
+        if (p.status !== 'active') return false;
         if (filterType && p.propertyType !== filterType) return false;
         if (filterCity && p.city !== filterCity) return false;
         return true;
@@ -210,7 +212,7 @@ export default function FacilitySelector({ onSelect, selectedFacilityId }: Facil
                                 <div className="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between">
                                     <div className="flex items-center gap-2 text-gray-400">
                                         <span className="text-sm">📍</span>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider line-clamp-1">{property.city}</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider line-clamp-1">{property.institution}</span>
                                     </div>
                                     <button className="flex items-center gap-2 text-[#0A192F] text-xs font-bold transition-all">
                                         {selectedFacilityId === property._id ? 'Selected' : 'Select Venue'}

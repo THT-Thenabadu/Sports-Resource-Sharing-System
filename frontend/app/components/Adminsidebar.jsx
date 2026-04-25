@@ -6,7 +6,7 @@ const navItems = [
     { icon: 'dashboard', label: 'Dashboard', href: '/dashboard/admin' },
     { icon: 'calendar_today', label: 'Manage Bookings', href: '/dashboard/admin/bookings' },
     { icon: 'event', label: 'Manage Events', href: '/dashboard/admin/events' },
-    { icon: 'rate_review', label: 'Manage Reviews', href: '/dashboard/admin/reviews' },
+    { icon: 'rate_review', label: 'Manage Reviews & feedbacks', href: '/hub/admin' },
     { icon: 'group', label: 'Manage Users', href: '/dashboard/admin/users', active: true },
 ];
 
@@ -38,19 +38,19 @@ export default function AdminSidebar() {
             </nav>
 
             {/* Admin Profile */}
-            <div className="sidebar-profile">
-                <div className="sidebar-profile-card">
-                    <img
-                        src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0"
-                        alt="Admin"
-                        className="sidebar-avatar"
-                    />
-                    <div className="sidebar-profile-info">
-                        <p className="sidebar-profile-name">Alex Sterling</p>
-                        <p className="sidebar-profile-role">Super Admin</p>
-                    </div>
-                </div>
-            </div>
+            {/*<div className="sidebar-profile">*/}
+            {/*    <div className="sidebar-profile-card">*/}
+            {/*        <img*/}
+            {/*            src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0"*/}
+            {/*            alt="Admin"*/}
+            {/*            className="sidebar-avatar"*/}
+            {/*        />*/}
+            {/*        /!*<div className="sidebar-profile-info">*!/*/}
+            {/*        /!*    <p className="sidebar-profile-name">Alex Sterling</p>*!/*/}
+            {/*        /!*    <p className="sidebar-profile-role">Super Admin</p>*!/*/}
+            {/*        /!*</div>*!/*/}
+            {/*    </div>*/}
+            {/*</div>*/}
         </aside>
     );
 }

@@ -36,7 +36,7 @@ export async function getFacilityById(id: string): Promise<Facility> {
 }
 
 export async function getProperties(): Promise<Property[]> {
-    const res = await fetch(`${API_BASE}/properties`);
+    const res = await fetch(`${API_BASE}/properties?status=active`);
     if (!res.ok) throw new Error('Failed to fetch properties');
     return res.json();
 }

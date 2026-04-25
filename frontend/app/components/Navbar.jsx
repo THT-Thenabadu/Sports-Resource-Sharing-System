@@ -45,9 +45,9 @@ const Navbar = () => {
 
             {/* ✅ Feedback & Support Link */}
             <Link href="/hub/tickets" className="navbar-link">My Tickets</Link>
-            {user.role === 'admin' && (
-              <Link href="/hub/admin" className="navbar-link text-red-400">Feedback Admin</Link>
-            )}
+            {/*{user.role === 'admin' && (*/}
+            {/*  <Link href="/hub/admin" className="navbar-link text-red-400">Feedback Admin</Link>*/}
+            {/*)}*/}
 
             {/* ✅ Profile image — clicking goes to dashboard */}
             <div 
