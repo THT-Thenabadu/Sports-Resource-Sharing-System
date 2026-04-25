@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useEffect, useState } from 'react';
 import { Property } from '../types';
 import { getProperties } from '../services/bookingApi';
@@ -137,55 +139,86 @@ export default function FacilitySelector({ onSelect, selectedFacilityId }: Facil
                     <p className="text-gray-500 font-medium">No properties found matching your filters.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filtered.map(property => (
-                        <button
+                        <div
                             key={property._id}
                             onClick={() => onSelect(property)}
-                            className={`group relative overflow-hidden text-left w-full h-[320px] rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-end ${
+                            className={`flex flex-col bg-white rounded-xl overflow-hidden border transition-all cursor-pointer group ${
                                 selectedFacilityId === property._id
-                                    ? 'ring-4 ring-[#64FFDA] ring-offset-2 shadow-2xl'
-                                    : 'hover:shadow-2xl shadow-md border border-gray-200'
+                                    ? 'border-[#0A192F] shadow-lg ring-1 ring-[#0A192F]'
+                                    : 'border-gray-200 shadow-sm hover:border-gray-300'
                             }`}
                         >
-                            {/* Background Image */}
-                            <img
-                                src={property.images?.[0] ? `http://localhost:8000${property.images[0]}` : fallbackImages[property.propertyType?.toLowerCase()] || 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1000&auto=format&fit=crop'}
-                                alt={property.title}
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            />
-
-                            {/* Dark Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#112240] via-[#112240]/60 to-transparent transition-opacity duration-300 group-hover:opacity-90"></div>
-
-                            {/* Content */}
-                            <div className="relative z-10 p-6 flex flex-col gap-3">
-                                <div className="flex items-center flex-wrap gap-2 mb-1 transform transition-transform duration-300 translate-y-2 group-hover:translate-y-0">
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-[#64FFDA] text-[#112240] shadow-sm">
-                                        {typeIcons[property.propertyType?.toLowerCase()] || '🏟️'} {typeLabels[property.propertyType?.toLowerCase()] || property.propertyType}
+                            {/* Image Section */}
+                            <div className="relative h-52 overflow-hidden bg-gray-100">
+                                <img
+                                    src={property.images?.[0] ? `http://localhost:8000${property.images[0]}` : fallbackImages[property.propertyType?.toLowerCase()] || fallbackImages['ground']}
+                                    alt={property.title}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                                <div className="absolute top-3 right-3 flex gap-2">
+                                    <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-green-600 text-white shadow-sm">
+                                        Available
                                     </span>
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-white/20 text-white backdrop-blur-sm border border-white/10 shadow-sm">
-                                        ${property.pricePerHour}/hr
-                                    </span>
-                                </div>
-
-                                <div className="transform transition-transform duration-300">
-                                    <h3 className="font-extrabold text-white text-xl sm:text-2xl line-clamp-1">{property.title}</h3>
-                                    <p className="text-sm font-semibold text-gray-300 mt-1">{property.city} • {property.sportType}</p>
-                                </div>
-
-                                {/* Slide-up on hover info (Operating Hours & Desc) */}
-                                <div className="opacity-0 max-h-0 overflow-hidden transform translate-y-4 group-hover:opacity-100 group-hover:max-h-[100px] group-hover:translate-y-0 transition-all duration-300 ease-out">
-                                    <div className="flex items-center gap-1.5 mt-2 text-sm text-[#64FFDA] font-medium bg-black/30 w-fit px-3 py-1.5 rounded-lg border border-white/5 backdrop-blur-md">
-                                        <span className="text-base text-white">⏱</span>
-                                        <span>{property.openingTime} – {property.closingTime}</span>
-                                    </div>
-                                    {property.description && (
-                                        <p className="text-xs text-gray-300 line-clamp-2 mt-3 leading-relaxed border-t border-white/10 pt-2">{property.description}</p>
-                                    )}
                                 </div>
                             </div>
-                        </button>
+
+                            {/* Content Section */}
+                            <div className="p-6 flex-1 flex flex-col">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h3 className="text-lg font-bold text-[#0A192F] transition-colors line-clamp-1">
+                                        {property.title}
+                                    </h3>
+                                    <div className="flex items-center gap-1 font-bold text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                                        <span className="text-gray-500 text-[10px] uppercase">Price</span>
+                                        <span className="text-[#0A192F]">${property.pricePerHour}/hr</span>
+                                    </div>
+                                </div>
+
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 block">
+                                    {typeIcons[property.propertyType?.toLowerCase()] || '🏟️'} {typeLabels[property.propertyType?.toLowerCase()] || property.propertyType} • {property.sportType}
+                                </span>
+
+                                <p className="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+                                    {property.description || 'No description available for this facility.'}
+                                </p>
+
+                                <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-gray-50">
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                        <span className="text-sm">👥</span>
+                                        <span className="text-xs font-semibold">Standard Limit</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                        <span className="text-sm">⏱</span>
+                                        <span className="text-xs font-semibold">{property.openingTime} - {property.closingTime}</span>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="grid grid-cols-1 gap-2 mt-auto">
+                                    <Link
+                                        href={`/hub/reviews/${property._id}?name=${encodeURIComponent(property.title || '')}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="flex items-center justify-center gap-2 bg-gray-50 text-gray-700 text-xs font-bold py-2.5 rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-gray-900 transition-all shadow-sm"
+                                    >
+                                        <span className="text-sm">⭐</span>
+                                        Reviews & Feedback
+                                    </Link>
+                                </div>
+
+                                <div className="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-gray-400">
+                                        <span className="text-sm">📍</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider line-clamp-1">{property.city}</span>
+                                    </div>
+                                    <button className="flex items-center gap-2 text-[#0A192F] text-xs font-bold transition-all">
+                                        {selectedFacilityId === property._id ? 'Selected' : 'Select Venue'}
+                                        <span className="text-sm">→</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}

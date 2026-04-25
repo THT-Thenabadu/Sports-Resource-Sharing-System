@@ -53,6 +53,9 @@ app.use('/api/properties', propertyRoutes);
 const securityRoutes = require('./Security/routes/securityRoutes');
 app.use('/api/security', securityRoutes);
 
+const feedbackRoutes = require('./routes/feedback');
+app.use('/api/feedback', feedbackRoutes);
+
 // ─── Database + Start Server ──────────────────────────────
 mongoose.connect(process.env.MONGODB_URI) // ✅ only one mongoose.connect
   .then(async () => {
@@ -62,20 +65,7 @@ mongoose.connect(process.env.MONGODB_URI) // ✅ only one mongoose.connect
     const PORT = process.env.PORT || 8000;
     app.listen(PORT, () => console.log(` Backend running on port ${PORT}`));
   })
-// <<<<<<< HEAD
   .catch(err => {
     console.error("❌ DB Connection Error:", err);
     process.exit(1); // Exit the process if DB connection fails
   });
-// =======
-  // .catch(err => console.log(" DB Error:", err));
-
-  // const ownerApplicationRoutes = require('./routes/ownerApplication');
-  // const bookingRoutes = require('./Booking/routes/bookingRoutes');
-
-
-// add this with the other routes
-// app.use('/api/owner-application', ownerApplicationRoutes);
-// app.use('/api/bookings', bookingRoutes);
-
-// >>>>>>> origin/feature-security01
