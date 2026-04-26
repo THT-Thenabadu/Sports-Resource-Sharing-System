@@ -12,14 +12,19 @@ function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-async function getOwnerPropertyIds(ownerId) {
-  const props = await Property.find({ owner: ownerId }).select('_id title availabilityState openingTime closingTime');
-  return props;
+async function getOwnerPropertyIds(reqUser) {
+  if (reqUser.role === 'admin') {
+    return await Property.find({}).select('_id title availabilityState openingTime closingTime');
+  }
+  if (reqUser.role === 'security') {
+    return await Property.find({ institution: reqUser.institution }).select('_id title availabilityState openingTime closingTime');
+  }
+  return await Property.find({ owner: reqUser.id }).select('_id title availabilityState openingTime closingTime');
 }
 
 exports.getAvailability = async (req, res) => {
   try {
-    const properties = await getOwnerPropertyIds(req.user.id);
+    const properties = await getOwnerPropertyIds(req.user);
     const total = properties.length;
     const available = properties.filter((p) => (p.availabilityState || 'available') === 'available').length;
     const notAvailable = total - available;
@@ -36,7 +41,7 @@ exports.getAvailability = async (req, res) => {
 exports.getBookings = async (req, res) => {
   try {
     const { view = 'all', from, to, q } = req.query;
-    const properties = await getOwnerPropertyIds(req.user.id);
+    const properties = await getOwnerPropertyIds(req.user);
     const objectIds = properties.map((p) => new mongoose.Types.ObjectId(p._id));
 
     const filter = { facilityId: { $in: objectIds } };
@@ -73,7 +78,7 @@ exports.updateBookingStatus = async (req, res) => {
       return res.status(400).json({ message: 'Invalid status value.' });
     }
 
-    const properties = await getOwnerPropertyIds(req.user.id);
+    const properties = await getOwnerPropertyIds(req.user);
     const objectIds = properties.map((p) => new mongoose.Types.ObjectId(p._id));
     const booking = await Booking.findOne({ _id: req.params.id, facilityId: { $in: objectIds } });
     if (!booking) return res.status(404).json({ message: 'Booking not found.' });
@@ -95,7 +100,7 @@ exports.scanAccessCode = async (req, res) => {
     if (!code) return res.status(400).json({ message: 'Token or QR code is required.' });
 
     // Ensure we only look at bookings for properties this officer manages
-    const properties = await getOwnerPropertyIds(req.user.id);
+    const properties = await getOwnerPropertyIds(req.user);
     const objectIds = properties.map((p) => new mongoose.Types.ObjectId(p._id));
 
     const bookings = await Booking.find({ 
@@ -149,7 +154,13 @@ exports.scanAccessCode = async (req, res) => {
 exports.getEntryLogs = async (req, res) => {
   try {
     const { date, from, to, type, q } = req.query;
-    const filter = { owner: req.user.id };
+
+    let filter = {};
+    if (req.user.role === 'security') {
+       filter.institution = req.user.institution;
+    } else if (req.user.role !== 'admin') {
+       filter.owner = req.user.id;
+    }
 
     if (date) {
       const day = new Date(date);
@@ -187,6 +198,7 @@ exports.createEntryLog = async (req, res) => {
     const { name, type, facility, entryTime, exitTime, idVerified } = req.body;
     const log = await EntryLog.create({
       owner: req.user.id,
+      institution: req.user.institution || 'None',
       name,
       type,
       facility,
@@ -204,7 +216,13 @@ exports.createEntryLog = async (req, res) => {
 
 exports.markEntryLogExit = async (req, res) => {
   try {
-    const log = await EntryLog.findOne({ _id: req.params.id, owner: req.user.id });
+    let filter = { _id: req.params.id };
+    if (req.user.role === 'security') {
+       filter.institution = req.user.institution;
+    } else if (req.user.role !== 'admin') {
+       filter.owner = req.user.id;
+    }
+    const log = await EntryLog.findOne(filter);
     if (!log) return res.status(404).json({ message: 'Entry log not found.' });
     
     // Set exit time to current HH:MM
@@ -221,11 +239,19 @@ exports.markEntryLogExit = async (req, res) => {
 };
 
 
-async function buildReportData(ownerId, fromStr, toStr, reportType) {
+async function buildReportData(reqUser, fromStr, toStr, reportType) {
   const r = parseDateRange(fromStr, toStr);
   if (r.error) return { error: r.error };
 
-  const properties = await Property.find({ owner: ownerId }).select('_id title availabilityState openingTime closingTime');
+  let properties;
+  if (reqUser.role === 'admin') {
+    properties = await Property.find({}).select('_id title availabilityState openingTime closingTime');
+  } else if (reqUser.role === 'security') {
+    properties = await Property.find({ institution: reqUser.institution }).select('_id title availabilityState openingTime closingTime');
+  } else {
+    properties = await Property.find({ owner: reqUser.id }).select('_id title availabilityState openingTime closingTime');
+  }
+
   const ids = properties.map((p) => new mongoose.Types.ObjectId(p._id));
 
   const bookings = await Booking.find({
@@ -233,10 +259,14 @@ async function buildReportData(ownerId, fromStr, toStr, reportType) {
     date: { $gte: r.fromDate, $lte: r.toDate }
   }).sort({ date: 1, startTime: 1 });
 
-  const logs = await EntryLog.find({
-    owner: ownerId,
-    logDate: { $gte: r.fromDate, $lte: r.toDate }
-  }).sort({ logDate: 1 });
+  let logFilter = { logDate: { $gte: r.fromDate, $lte: r.toDate } };
+  if (reqUser.role === 'security') {
+    logFilter.institution = reqUser.institution;
+  } else if (reqUser.role !== 'admin') {
+    logFilter.owner = reqUser.id;
+  }
+
+  const logs = await EntryLog.find(logFilter).sort({ logDate: 1 });
 
   const propertyUsage = computePropertyUsageHours(bookings, properties);
 
@@ -268,7 +298,7 @@ exports.getReportsSummary = async (req, res) => {
       return res.status(400).json({ message: 'Invalid report type.' });
     }
 
-    const data = await buildReportData(req.user.id, from, to, type);
+    const data = await buildReportData(req.user, from, to, type);
     if (data.error) return res.status(400).json({ message: data.error });
 
     const base = {
@@ -319,7 +349,7 @@ exports.getReportsPdf = async (req, res) => {
       return res.status(400).json({ message: 'Invalid report type for PDF.' });
     }
 
-    const data = await buildReportData(req.user.id, from, to, type);
+    const data = await buildReportData(req.user, from, to, type);
     if (data.error) return res.status(400).json({ message: data.error });
 
     const fromDate = data.range.from;

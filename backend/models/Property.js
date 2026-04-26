@@ -10,6 +10,7 @@ const propertySchema = new mongoose.Schema({
 
   // Step 1 - Basic Info
   title:        { type: String, required: true },
+  institution:  { type: String },
   description:  { type: String, required: true },
   sportType:    { type: String, required: true },
   propertyType: { type: String, required: true },

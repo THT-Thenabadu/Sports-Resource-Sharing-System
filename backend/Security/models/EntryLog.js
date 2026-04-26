@@ -6,6 +6,7 @@ const entryLogSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  institution: { type: String },
   property: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Property'

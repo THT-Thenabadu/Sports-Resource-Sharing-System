@@ -340,3 +340,226 @@
     color: #64748b;
     align-self: center;
 }
+
+/* ── Clickable row ── */
+.users-tr--clickable {
+    cursor: pointer;
+  }
+  .users-tr--clickable:hover {
+    background: #f0f4ff;
+  }
+  
+  /* ── Modal Overlay ── */
+  .app-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fade-in 0.2s ease;
+  }
+  
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  
+  /* ── Modal Box ── */
+  .app-modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    animation: slide-up 0.25s ease;
+  }
+  
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* ── Modal Header ── */
+  .app-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid #e7e8e9;
+  }
+  
+  .app-modal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .app-modal-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+  
+  .app-modal-name {
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #000613;
+  }
+  
+  .app-modal-email {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.8rem;
+    color: #74777f;
+    margin-top: 2px;
+  }
+  
+  .app-modal-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .app-modal-close {
+    background: #f3f4f5;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .app-modal-close:hover { background: #e7e8e9; }
+  .app-modal-close .material-symbols-outlined { font-size: 1.1rem; color: #43474e; }
+  
+  /* ── Modal Body ── */
+  .app-modal-body {
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .app-modal-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .app-modal-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #005eb2;
+  }
+  
+  .app-modal-section-title .material-symbols-outlined { font-size: 1rem; }
+  
+  .app-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  
+  .app-modal-field {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+  }
+  
+  .app-modal-field--full {
+    grid-column: 1 / -1;
+  }
+  
+  .app-modal-field-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #74777f;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.25rem;
+  }
+  
+  .app-modal-field-value {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #191c1d;
+  }
+  
+  .app-modal-date {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.78rem;
+    color: #74777f;
+    text-align: right;
+  }
+  
+  /* ── Modal Footer ── */
+  .app-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.25rem 1.75rem;
+    border-top: 1px solid #e7e8e9;
+  }
+  
+  .app-modal-footer--actioned {
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 0 0 16px 16px;
+  }
+  
+  .app-modal-actioned-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #43474e;
+  }
+  
+  .app-modal-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 999px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .app-modal-btn:hover { opacity: 0.85; }
+  .app-modal-btn .material-symbols-outlined { font-size: 1.1rem; }
+  
+  .app-modal-btn--approve {
+    background: #005eb2;
+    color: #fff;
+  }
+  
+  .app-modal-btn--reject {
+    background: #fff0f0;
+    color: #ba1a1a;
+    border: 1px solid #fca5a5;
+  }

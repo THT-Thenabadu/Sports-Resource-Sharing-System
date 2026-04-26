@@ -43,7 +43,7 @@ const upload = multer({
 router.post('/register', verifyToken, upload.array('images', 5), async (req, res) => {
   try {
     const {
-      title, description, sportType, propertyType,
+      title, institution, description, sportType, propertyType,
       address, city, postalCode, mapsLink,
       pricePerHour, maxPlayers, availableDays,
       openingTime, closingTime, amenities
@@ -55,6 +55,7 @@ router.post('/register', verifyToken, upload.array('images', 5), async (req, res
     const property = new Property({
       owner: req.user.id,
       title,
+      institution: institution || req.user.institution || 'None',
       description,
       sportType,
       propertyType,

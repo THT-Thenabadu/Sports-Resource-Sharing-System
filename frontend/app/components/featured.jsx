@@ -7,21 +7,21 @@ const categories = [
     desc: 'Professional clay and grass courts available',
     link: '#',
     linkLabel: 'Browse Courts',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDLmO_GsfHEkioLe6mmbQAgiUyPrxZlXBT1FKOBCI4msvoVA6QjXM7C_dnBk3ncF3Tt5suvdh0WDD9QCVKKrQXaeDfjkyxbLWapG0-0nHAxQGHrO9dZSdC_Wa5ieoMtXm0iM4Pi7YOuArBlBai4oKYe2Q_NguxVMsAMqW2Q8CPh53VMqsfTIeKMRgq0bVYFWfbOsydlgqu8D53392TXg1UGm0Sc4AdvXw44E92ETj6z-_bMU-D9aeCd8cS9u8Xpwwl-RBJYnwBDLoU',
+    img: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0',
   },
   {
     name: 'Football',
     desc: '5-a-side and full turf pitches',
     link: '#',
     linkLabel: 'Find Pitches',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZyp9RQtUsj_YJJ8OBLJWElkC1QFnD1DW8-1sOSJw9Cd7zvqsbdV8EwjiPAG_VyJU66ALu7rVkLWDtTesf9XwrvWl6VcctTYW_9Oqh0oB3XWRy9URVNhHBgjF1CJGPmzOwKsuAHnMmkrUdikRy9WBhdGP_G3crc3azef4ZU15IsG388qUUAMDwLnvzSWuW9G3XDGtS3d-gELyQhcDMpQRG-B4rCvP25GLdeYRdS-NjF0wVxgdTLOEfK0bMbKZAen5avsaVb0fnPKU',
+    img: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55',
   },
   {
     name: 'Cricket',
     desc: 'Indoor nets and match grounds',
     link: '#',
     linkLabel: 'View Grounds',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB22IeWQEZ9TxWN9mlkxoGtp9MHXFkTano1Dg2we6skQm_z8LRVwQhtdr7UkxqCqsrNWtwzI4ebH8ombj1ghLL0o-dnJnFMQDStj2zmUUkJUov_NrLRDVBfNfV6ule2a7-3_Na_SSyhK8en3eASawqzjtNnVEruEOuj4ymNRseEE0TsNOhR08YF0HUw_rTIcp_lUk_6zQu4F3pqPVIgfOI-GnrM7dLTaUNAEF55wCiel7CcPIL63eByh18jueL9Ni1YbdbJp7av2xU',
+    img: 'https://images.unsplash.com/photo-1540747913346-19e32fc3e666',
   },
 ];
 

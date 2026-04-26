@@ -22,7 +22,7 @@ export default function PropertyOwnerCta() {
       {/* Background Image + Overlay */}
       <div className="owner-cta-bg">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTzF6-AndGeFFp1BFKRAjYZMgSrEK-n0p8CpMSBR7adC2_fUdsW0MVWfq3EgQJkNPa35WtWS3wUtFr-cVsRdEZM0TBvcP4onJnRE4NsEYrjgHNGzHWJoS8AOAgtGgdCsQeeyU2uW4yXA38IWujct4lBf_HyalVbh5L0uQ8-KmZuJ1qZ1gUaMv3IJrEUEWQZA1ShJ22ZW6iwL5qRiuEhcRZm37vGuuW2AqWzEpaNdc7kfladdLA3MO8mytxXmRF2e29TxRdeUEVXN0"
+          src="https://images.unsplash.com/photo-1540747913346-19e32fc3e666"
           alt="Elite Stadium Arena"
           className="owner-cta-bg-img"
         />

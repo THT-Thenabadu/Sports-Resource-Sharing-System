@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import "tailwindcss";
+
 /* ===========================
    global.css — Base styles & CSS Variables
    =========================== */
 
-   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-/* Changed for checking !!!*/
    :root {
      --color-dark: #0A192F;
      --color-primary: #112240;
@@ -26,11 +27,10 @@
    
    *, *::before, *::after {
      box-sizing: border-box;
-     margin: 0;
-     padding: 0;
    }
    
    body {
+     margin: 0;
      font-family: var(--font-family);
      background-color: var(--color-white);
      color: var(--color-dark);
@@ -50,8 +50,6 @@
    
    button {
      cursor: pointer;
-     border: none;
-     outline: none;
      font-family: var(--font-family);
    }
    
@@ -60,3 +58,44 @@
      outline: none;
      border: none;
    }
+
+@tailwind utilities;
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+  .text-shadow-sm {
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  }
+}
+
+.step-input--error {
+  border-color: #ba1a1a !important;
+  background: #fff8f7;
+}
+
+.step-error {
+  color: #ba1a1a;
+  font-size: 11px;
+  font-family: 'Manrope', sans-serif;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.step-error::before {
+  content: 'error';
+  font-family: 'Material Symbols Outlined';
+  font-size: 13px;
+}

@@ -1,19 +1,17 @@
 import React from 'react';
 import '../component-styles/Hero.css';
-
 const Hero = () => {
   return (
     <section className="hero" data-purpose="hero-section" id="hero">
       {/* Background */}
       <div className="hero-bg">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6xxoeKGt2JLvpB2t_XaUxpx-MwT5yvTxIJMhj3a_2vkgjpo2CdSRtR09VXRa_XCN5SqLypkj4laEV_xrP2rgEIC0urLDVPW4wQEBABX7VEDU4XBZ8BnisYRrrvYv6NAZ5rQWHPRoSrEG9Lh5tqjAxFYJI7CcbnZJaGYlubogqzr7FPjr76vN6n_s6w2FspW3Xn_ODTdUOchfMPLK6XygszRixg6kLOIBLmHjhgyu2dBzcyiWqySkC-Q96DuZTL04eK0PDmnIdKPU"
+          src="https://images.unsplash.com/photo-1540747913346-19e32fc3e666"
           alt="Modern Sports Facility"
           className="hero-bg-img"
         />
         <div className="hero-overlay" />
       </div>
-
       {/* Content */}
       <div className="hero-content">
         <h1 className="hero-heading">
@@ -24,7 +22,6 @@ const Hero = () => {
           The ultimate marketplace for sports enthusiasts. Book premium facilities or monetize
           your sports infrastructure with ease.
         </p>
-
         {/* Search Bar */}
         <div className="search-bar" data-purpose="quick-search">
           <div className="search-field">
@@ -38,7 +35,6 @@ const Hero = () => {
               className="search-input"
             />
           </div>
-
           <div className="search-field search-field--bordered">
             <svg className="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -52,12 +48,10 @@ const Hero = () => {
               <option>Basketball</option>
             </select>
           </div>
-
           <button className="search-btn">Search Now</button>
         </div>
       </div>
     </section>
   );
 };
-
 export default Hero;

@@ -4,19 +4,29 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('../models/User');
+const { protect } = require('../middleware/authMiddleware');
 const isAdmin = require('../middleware/isAdmin');
 const { ensureOwnerSecurityCredentials } = require('../utils/securityCredentials');
+
+// Middleware to check for admin or owner roles
+const isOwnerOrAdmin = (req, res, next) => {
+    if (req.user && (req.user.role === 'owner' || req.user.role === 'admin')) {
+        next();
+    } else {
+        res.status(403).json({ message: 'Forbidden: Access is denied.' });
+    }
+};
 
 // ─── Register Route ───────────────────────────────────────
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role, businessName } = req.body;
+    const { name, email, password, role, businessName, institution } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: "Email already registered" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword, role, businessName });
+    const newUser = new User({ name, email, password: hashedPassword, role, businessName, institution });
     await newUser.save();
 
     res.status(201).json({ message: "User created successfully!" });
@@ -77,7 +87,7 @@ router.post('/login', async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
 
     const token = jwt.sign(
-      { id: user._id, role: user.role, name: user.name }, // ✅ name added
+      { id: user._id, role: user.role, name: user.name, institution: user.institution },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -88,6 +98,8 @@ router.post('/login', async (req, res) => {
       id: user._id,
       role: user.role,
       name: user.name,
+      _id: user._id,
+      institution: user.institution,
       dashboard: usedSecurityCredential ? 'security' : undefined
     });
   } catch (error) {
@@ -104,7 +116,12 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     const token = jwt.sign(
-      { id: req.user._id, name: req.user.name, role: req.user.role },
+      {
+        id: req.user._id,
+        name: req.user.name,
+        role: req.user.role,
+        institution: req.user.institution
+      },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -123,6 +140,38 @@ const verifyToken = (req, res, next) => {
     res.status(401).json({ message: 'Invalid token' });
   }
 };
+
+// ─── User Management Routes (Admin/Owner only) ─────────────
+router.get('/users', protect, isOwnerOrAdmin, async (req, res) => {
+    try {
+        const users = await User.find({}).select('-password').sort({ createdAt: -1 }); // Exclude passwords
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+router.patch('/update-role/:id', protect, isOwnerOrAdmin, async (req, res) => {
+    try {
+        const { role } = req.body;
+        if (role !== 'owner' && role !== 'customer' && role !== 'admin') {
+            return res.status(400).json({ message: 'Invalid role specified.' });
+        }
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+        // Prevent admin role from being changed
+        if (user.role === 'admin') {
+            return res.status(403).json({ message: 'Cannot change the role of an admin.' });
+        }
+        user.role = role;
+        await user.save();
+        res.json({ message: 'User role updated successfully.', user });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update user role.' });
+    }
+});
 
 // ─── Me Route ─────────────────────────────────────────────
 router.get('/me', verifyToken, async (req, res) => {

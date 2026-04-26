@@ -40,18 +40,35 @@ export default function LoginForm() {
         localStorage.setItem("user", JSON.stringify({
           id: data.id,
           name: data.name,
-          role: data.role
+          role: data.role,
+          institution: data.institution,
+          dashboard: data.dashboard
         }));
 
         window.dispatchEvent(new Event('userUpdated'));
 
+        // Redirect based on role and URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('returnUrl');
+
+        // if (data.role === "owner" || data.role === "admin") {
+        //   window.location.href = "/admin";
+        // } else if (returnUrl) {
+        //   window.location.href = returnUrl;
+
+
+        // ✅ Redirect based on role and URL params
+        if (returnUrl) {
+          window.location.href = returnUrl;
+        }
         // ✅ Redirect based on role
-        if (data.dashboard === 'security') {
+        if (data.dashboard === 'security' || data.role === 'security') {
           window.location.href = '/dashboard/security';
         } else if (data.role === 'admin') {
           window.location.href = '/admin';
         } else if (data.role === 'owner') {
-          window.location.href = '/dashboard/owner';
+          window.location.href = '/propertyowner';
+
         } else {
           window.location.href = '/'; // customer goes to homepage
         }
@@ -162,8 +179,14 @@ export default function LoginForm() {
         </div>
 
         <p className="register-prompt">
-          Don't have an account?{" "}
-          <a className="register-link" href="#">Register</a>
+          Dont have an account?{" "}
+
+          <a className="register-link" href="/register">
+            Register
+          </a>
+
+          {/*<a className="register-link" href="#">Register</a>*/}
+
         </p>
       </div>
     </main>

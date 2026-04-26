@@ -29,11 +29,11 @@ export default function SecurityShell({ children }) {
 
     try {
       const user = JSON.parse(userRaw);
-      if (user.role !== 'owner') {
+      if (user.role !== 'owner' && user.role !== 'security' && user.dashboard !== 'security') {
         router.replace('/');
         return;
       }
-      setName(user.name || 'Owner');
+      setName(user.name || (user.role === 'security' ? 'Security Guard' : 'Owner'));
     } catch {
       router.replace('/login');
     }
