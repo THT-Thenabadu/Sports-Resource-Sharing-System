@@ -185,7 +185,7 @@ export default function BookingPage() {
                             <span className="text-gray-600 flex items-center gap-2">
                                 <span className="p-1.5 bg-blue-50 rounded-md">🏢</span>
                                 <span className="font-semibold text-gray-900">{selectedFacility.title}</span>
-                                <span className="text-gray-400 hidden sm:inline"> @ {selectedFacility.city}</span>
+                                <span className="text-gray-400 hidden sm:inline"> @ {selectedFacility.institution}</span>
                             </span>
                             {selectedDate && (
                                 <>

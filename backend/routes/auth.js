@@ -99,7 +99,7 @@ router.post('/login', async (req, res) => {
       role: user.role,
       name: user.name,
       _id: user._id,
-      institution: user.institution,
+      institution: user.institution || 'None',
       dashboard: usedSecurityCredential ? 'security' : undefined
     });
   } catch (error) {

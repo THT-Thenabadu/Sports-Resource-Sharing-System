@@ -93,7 +93,7 @@ export default function RegisterForm() {
 
       if (response.ok) {
         alert("Registration successful! You can now log in.");
-        // window.location.href = "/login";
+        window.location.href = "/login";
       } else {
         alert(data.message || "Registration failed");
       }
